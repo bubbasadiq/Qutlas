@@ -396,17 +396,16 @@ export default function Home() {
                   <circle cx="300" cy="225" r="100" fill="none" stroke="#ffaa00" strokeWidth="1" opacity="0.15" />
                   <circle cx="300" cy="225" r="50" fill="none" stroke="#ffaa00" strokeWidth="1" opacity="0.1" />
                   <circle cx="300" cy="225" r="10" fill="#ffaa00" opacity="0.8" />
-                  {[0, 1, 2, 3, 4].map((i) => {
-                    const angle = (i / 5) * Math.PI * 2;
-                    const x = 300 + Math.cos(angle) * 120;
-                    const y = 225 + Math.sin(angle) * 120;
-                    return (
-                      <g key={i}>
-                        <line x1="300" y1="225" x2={x} y2={y} stroke="#ffaa00" strokeWidth="1" opacity="0.3" />
-                        <circle cx={x} cy={y} r="6" fill="#ffaa00" opacity="0.6" />
-                      </g>
-                    );
-                  })}
+                  <line x1="300" y1="225" x2="420" y2="225" stroke="#ffaa00" strokeWidth="1" opacity="0.3" />
+                  <circle cx="420" cy="225" r="6" fill="#ffaa00" opacity="0.6" />
+                  <line x1="300" y1="225" x2="369.1" y2="369.1" stroke="#ffaa00" strokeWidth="1" opacity="0.3" />
+                  <circle cx="369.1" cy="369.1" r="6" fill="#ffaa00" opacity="0.6" />
+                  <line x1="300" y1="225" x2="180.9" y2="369.1" stroke="#ffaa00" strokeWidth="1" opacity="0.3" />
+                  <circle cx="180.9" cy="369.1" r="6" fill="#ffaa00" opacity="0.6" />
+                  <line x1="300" y1="225" x2="180.9" y2="80.9" stroke="#ffaa00" strokeWidth="1" opacity="0.3" />
+                  <circle cx="180.9" cy="80.9" r="6" fill="#ffaa00" opacity="0.6" />
+                  <line x1="300" y1="225" x2="369.1" y2="80.9" stroke="#ffaa00" strokeWidth="1" opacity="0.3" />
+                  <circle cx="369.1" cy="80.9" r="6" fill="#ffaa00" opacity="0.6" />
                 </svg>
               </div>
             </div>
