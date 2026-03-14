@@ -387,8 +387,8 @@ export default function Home() {
                 <svg id="schematic-svg" viewBox="0 0 600 450" xmlns="http://www.w3.org/2000/svg">
                   <defs>
                     <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#ffaa00', stopOpacity: 0.3 }} />
-                      <stop offset="100%" style={{ stopColor: '#ffaa00', stopOpacity: 0 }} />
+                      <stop offset="0%" stopColor="#ffaa00" stopOpacity="0.3" />
+                      <stop offset="100%" stopColor="#ffaa00" stopOpacity="0" />
                     </linearGradient>
                   </defs>
                   <rect width="600" height="450" fill="#080c22" />
@@ -402,15 +402,7 @@ export default function Home() {
                     const y = 225 + Math.sin(angle) * 120;
                     return (
                       <g key={i}>
-                        <line
-                          x1="300"
-                          y1="225"
-                          x2={x}
-                          y2={y}
-                          stroke="#ffaa00"
-                          strokeWidth="1"
-                          opacity="0.3"
-                        />
+                        <line x1="300" y1="225" x2={x} y2={y} stroke="#ffaa00" strokeWidth="1" opacity="0.3" />
                         <circle cx={x} cy={y} r="6" fill="#ffaa00" opacity="0.6" />
                       </g>
                     );
