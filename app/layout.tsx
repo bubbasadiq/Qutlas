@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import type { Viewport } from "next";
+import SiteFooter from "./SiteFooter";
+import SiteHeader from "./SiteHeader";
 import "./storefront.css";
 
 export const metadata: Metadata = {
@@ -24,7 +26,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <SiteHeader />
+        {children}
+        <SiteFooter />
+      </body>
     </html>
   );
 }
