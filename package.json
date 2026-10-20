@@ -2,7 +2,7 @@
   "name": "qutlas",
   "version": "1.0.0",
   "type": "module",
-  "description": "Qutlas: Programmable Materials Manufacturing",
+  "description": "Qutlas: Materials and Custom Manufacturing",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

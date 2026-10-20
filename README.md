@@ -1,21 +1,20 @@
-# Qutlas: Programmable Materials Manufacturing
+# Qutlas: Materials and Custom Manufacturing
 
-A modern landing page built with Next.js 16 for Qutlas, a company building the infrastructure for programmable materials manufacturing.
+A Next.js site for material supply and custom manufacturing project requests in Nigeria.
 
 ## Features
 
-- **Interactive 3D Canvas**: Real-time Three.js visualization of a network
-- **Custom Cursor**: Animated custom cursor that responds to interactive elements
-- **Responsive Design**: Mobile-first design that works seamlessly across all devices
-- **Scroll Animations**: Smooth reveal animations as you scroll through sections
-- **Modern Aesthetics**: Sophisticated navy and amber color scheme with smooth transitions
-- **Accessible**: Semantic HTML and ARIA labels throughout
+- **Material discovery**: Steel, wood, tiles and granite, with category-specific project details
+- **Responsive design**: Desktop and mobile layouts using the existing navy/amber identity
+- **Accessible controls**: Semantic labels, keyboard-friendly steps, focus states and validation
+- **Project configurator**: Progressive material-specific quote flow for steel, wood, tiles and granite, with drawing/idea entry points and a review step
+
+The project flow does not persist submissions or upload files. Quote drafts default to `support@qutlas.com`; business enquiries default to `hello@qutlas.com`. Customers must review and send email drafts themselves and attach their design files. Override recipients with `NEXT_PUBLIC_QUOTE_EMAIL` and `NEXT_PUBLIC_BUSINESS_EMAIL`. See [docs/manufacturing-workflow.md](docs/manufacturing-workflow.md) and [docs/sendcutsend-benchmark.md](docs/sendcutsend-benchmark.md) for workflow details.
 
 ## Tech Stack
 
 - **Framework**: Next.js 16
-- **Styling**: CSS with CSS variables
-- **3D Graphics**: Three.js
+- **Styling**: CSS with existing Qutlas palette and typography
 - **React Version**: 19.0.0
 
 ## Getting Started
@@ -54,8 +53,10 @@ npm start
 ```
 ├── app/
 │   ├── layout.tsx        # Root layout with metadata
-│   ├── page.tsx          # Main landing page with all sections
-│   └── globals.css       # Global styles and CSS variables
+│   ├── page.tsx          # Materials homepage
+│   ├── ProjectConfigurator.tsx # Multi-step project request
+│   ├── project/page.tsx  # Preselected project route
+│   └── storefront.css    # Homepage and configurator styles
 ├── public/
 │   └── icon_logo.png     # Qutlas logo
 ├── package.json          # Project dependencies
@@ -66,20 +67,14 @@ npm start
 
 ## Sections
 
-1. **Navigation**: Fixed header with logo and navigation links, with mobile menu
-2. **Hero**: Animated introduction with Three.js background
-3. **Problem**: Description of manufacturing challenges
-4. **Platform**: Five-layer system architecture
-5. **Basalt**: Information about the first material
-6. **Vision**: Future possibilities statement
-7. **Contact**: Form for inquiries
-8. **Footer**: Company information and links
+1. **Homepage**: Materials, project entry routes, buying steps, use cases and business requirements
+2. **Project configurator**: Progressive material selection, specifications, contact details and review
 
 ## Customization
 
 ### Colors
 
-Edit the CSS variables in `app/globals.css`:
+Edit the CSS variables in `app/storefront.css`:
 
 ```css
 :root {

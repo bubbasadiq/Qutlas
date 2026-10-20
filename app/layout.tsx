@@ -1,13 +1,20 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import type { Viewport } from "next";
+import "./storefront.css";
 
 export const metadata: Metadata = {
-  title: "Qutlas: Programmable Materials Manufacturing",
-  description: "Matter, finally under instruction. Building the infrastructure to change how structural materials are made.",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
+  title: "Qutlas | Steel, Wood, Tiles and Granite",
+  description: "Source materials, request cut-to-size components, and bring project requirements together with Qutlas.",
+  openGraph: {
+    title: "Qutlas | Materials in. Possibilities out.",
+    description: "Source steel, wood, tiles and granite. Start a project with Qutlas.",
+    type: "website",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
