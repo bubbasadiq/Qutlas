@@ -1,18 +1,29 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Rubik:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
 
+/* Qutlas design system: editorial utility for materials and manufacturing. */
 :root {
-  --navy: #2b2f8c;
-  --navy-dark: #1f2268;
-  --amber: #ffaa00;
-  --amber-light: #ffc040;
-  --paper: #f5f3ed;
-  --white: #fff;
-  --ink: #171936;
-  --quiet: #727281;
-  --line: rgba(31, 34, 104, 0.17);
-  --serif: "DM Serif Display", Georgia, serif;
-  --body: "Rubik", sans-serif;
+  --navy: #263b77;
+  --navy-dark: #17284f;
+  --amber: #d99a27;
+  --amber-light: #edbc58;
+  --paper: #f4f1e9;
+  --white: #fffdf8;
+  --ink: #1d2838;
+  --quiet: #5f6875;
+  --line: #d4d1c8;
+  --danger: #a53d20;
+  --success: #2f6b4f;
+  --serif: "Archivo", Arial, sans-serif;
+  --body: "Source Sans 3", Arial, sans-serif;
   --mono: "IBM Plex Mono", monospace;
+  --space-1: .35rem;
+  --space-2: .65rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2.5rem;
+  --space-6: 4rem;
+  --page-gutter: clamp(1.25rem, 6vw, 6rem);
+  --content-width: 1440px;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -449,5 +460,67 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+  *, *::before { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}
+
+/* Shared component rules: information first, decoration second. */
+.eyebrow,
+.header-action,
+.primary-button,
+.text-action,
+.light-button,
+.cart-link,
+.material-copy small,
+.material-link,
+.route-action,
+.applications-grid a,
+.site-footer nav a,
+.footer-contact a,
+.footer-contact small,
+.catalogue-meta,
+.catalogue-kicker,
+.status-pill,
+.spec-list dt,
+.product-code,
+.add-cart-button,
+.cart-total,
+.remove-line,
+.checkout-form label,
+.service-link,
+.resource-card > span,
+.resource-card b,
+.content-section-index,
+.project-back,
+.progress-steps li,
+.field-group > label,
+.field-label,
+.start-modes legend,
+.review-section h3,
+.secondary-button { text-transform: none; letter-spacing: normal; }
+
+h1, h2, h3, h4, p { text-wrap: pretty; }
+
+.header-action, .primary-button, .light-button, .secondary-button,
+.nav-trigger, .material-choice, .mode-option, .field-group input,
+.field-group select, .field-group textarea { border-radius: 3px; }
+
+.nav-popover, .material-card, .service-row, .resource-card,
+.content-hero-image, .catalogue-shell { border-radius: 0; }
+
+.material-card, .service-row, .resource-card { box-shadow: none; }
+.material-card:hover, .service-row:hover, .resource-card:hover { transform: none; }
+
+.site-header { min-height: 72px; }
+.site-header, .site-footer { border-color: var(--line); }
+.hero-band { background: var(--navy-dark); }
+.hero-band h1, .listing-heading h1, .content-hero h1, .shop-hero h1,
+.checkout-heading h1, .checkout-success h1, .empty-cart h1 { letter-spacing: -.035em; }
+.hero-intro, .listing-heading > p:last-child, .content-intro,
+.shop-hero > p:last-child, .checkout-heading > p:last-child { font-size: 1.05rem; }
+.primary-button, .light-button { font-weight: 600; }
+
+@media (max-width: 720px) {
+  .hero-band h1 { letter-spacing: -.045em; }
+  .material-grid { gap: 1px; }
+  .material-card { border-radius: 0; }
 }
