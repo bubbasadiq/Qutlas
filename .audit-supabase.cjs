@@ -35,6 +35,18 @@ async function probe(name, key, useBearer) {
   }
   const serverKey = env.SUPABASE_SECRET_KEY;
   const serverHeaders = { apikey: serverKey, Authorization: `Bearer ${serverKey}` };
+  const openApi = await fetch(`${base}/rest/v1/`, { headers: serverHeaders });
+  if (openApi.ok) {
+    const specification = await openApi.json();
+    const schemas = ['enquiries', 'orders', 'users', 'profiles', 'user_profiles'].map((name) => {
+      const schema = specification.definitions?.[name];
+      const columns = Object.fromEntries(Object.entries(schema?.properties ?? {}).map(([column, definition]) => [column, { type: definition.type ?? null, format: definition.format ?? null, required: schema.required?.includes(column) ?? false, default: definition.default ?? null }]));
+      return { name, columns };
+    });
+    console.log(JSON.stringify({ kind: 'openapi-schemas', status: openApi.status, schemas }));
+  } else {
+    console.log(JSON.stringify({ kind: 'openapi-schemas', status: openApi.status }));
+  }
   const bucket = await fetch(`${base}/storage/v1/bucket/qutlas-project-files`, { headers: serverHeaders });
   let bucketInfo = {};
   if (bucket.ok) {
