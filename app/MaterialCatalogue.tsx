@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { catalogueProducts, catalogueCategories, type CatalogueProduct } from './site-data';
+import { ShopProductCard } from './ShopCart';
 
-export default function MaterialCatalogue() {
+export function MaterialCatalogue({ mode = 'catalogue' }: { mode?: 'catalogue' | 'shop' }) {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
@@ -23,7 +24,7 @@ export default function MaterialCatalogue() {
     <section className="catalogue-shell" aria-labelledby="catalogue-title">
       <div className="catalogue-intro">
         <div><p className="eyebrow">Structured catalogue</p><h2 id="catalogue-title">Find the form, not just the material.</h2></div>
-        <p>Search by a product name or specification, then carry the selection into a project request. Availability, price and unverified attributes are confirmed before quotation.</p>
+        <p>{mode === 'shop' ? 'Search parts by name, form or specification. Add fasteners and hardware to your cart, then submit one complete order request.' : 'Search by a product name or specification, then carry the selection into a project request. Availability, price and unverified attributes are confirmed before quotation.'}</p>
       </div>
       <div className="catalogue-toolbar">
         <label className="catalogue-search"><span className="sr-only">Search catalogue</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search steel, plywood, hinge, bolt…" /></label>
@@ -32,7 +33,7 @@ export default function MaterialCatalogue() {
       </div>
       <div className="catalogue-meta"><span>{results.length} catalogue {results.length === 1 ? 'entry' : 'entries'}</span><span>Initial release · enquiry-led</span></div>
       <div className="catalogue-results" aria-live="polite">
-        {results.map((product) => <article className="catalogue-row" key={product.id}>
+        {mode === 'shop' ? <div className="shop-product-grid">{results.map((product) => <ShopProductCard product={product} key={product.id} />)}</div> : results.map((product) => <article className="catalogue-row" key={product.id}>
           <div className="catalogue-mark" aria-hidden="true">{product.code}</div>
           <div className="catalogue-result-copy"><div className="catalogue-result-heading"><div><p className="catalogue-kicker">{product.family} · {product.form}</p><h3>{product.name}</h3></div><span className={`status-pill status-${product.status}`}>{product.status === 'verified' ? 'Verified' : 'To confirm'}</span></div><p>{product.summary}</p><dl className="spec-list">{product.specs.map((spec) => <div key={spec.label}><dt>{spec.label}</dt><dd>{spec.value}</dd></div>)}</dl><div className="catalogue-row-actions"><Link href={`/project?material=${product.material}&item=${encodeURIComponent(product.name)}`}>Add to project <span aria-hidden="true">↗</span></Link><span>{product.sellingUnit}</span></div></div>
         </article>)}
@@ -41,3 +42,5 @@ export default function MaterialCatalogue() {
     </section>
   );
 }
+
+export default MaterialCatalogue;

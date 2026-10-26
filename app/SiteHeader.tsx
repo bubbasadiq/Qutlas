@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { materials, resources, services } from './site-data';
+import { CartLink } from './ShopCart';
 
 type MenuName = 'materials' | 'services' | 'resources' | 'mobile' | null;
 
@@ -52,7 +53,7 @@ export default function SiteHeader() {
         <Link href="/business" onClick={close}>For business</Link>
         <Link href="/about" onClick={close}>About</Link>
       </nav>
-      <Link className="header-action" href="/project" onClick={close}>Start a project <span aria-hidden="true">↗</span></Link>
+      <CartLink /><Link className="header-action" href="/project" onClick={close}>Start a project <span aria-hidden="true">↗</span></Link>
       <button ref={mobileToggleRef} type="button" className={`mobile-menu-toggle ${openMenu === 'mobile' ? 'open' : ''}`} aria-label={openMenu === 'mobile' ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={openMenu === 'mobile'} aria-controls="mobile-navigation" onClick={() => setOpenMenu((current) => current === 'mobile' ? null : 'mobile')}><span></span><span></span><span></span></button>
       {openMenu === 'mobile' && <nav className="mobile-navigation" id="mobile-navigation" aria-label="Mobile navigation">
         <details><summary>Materials</summary><div>{materials.map((material) => <Link href={`/materials/${material.id}`} key={material.id} onClick={close}>{material.name}</Link>)}<Link href="/materials" onClick={close}>Browse all materials</Link></div></details>
