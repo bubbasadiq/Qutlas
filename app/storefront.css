@@ -156,6 +156,37 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .material-grid { gap: .8rem; border: 0; background: transparent; }
 .material-card { border: 1px solid var(--line); border-radius: 11px; overflow: hidden; }
 .material-photo img { border-radius: 0; }
+.catalogue-shell { margin-top: clamp(4rem, 8vw, 7rem); padding: clamp(1.5rem, 3vw, 2.5rem); background: var(--navy-dark); color: var(--white); }
+.catalogue-intro { display: flex; justify-content: space-between; gap: 3rem; align-items: end; padding-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,.18); }
+.catalogue-intro h2 { max-width: 580px; margin: 0; color: var(--white); font: 400 clamp(2rem, 4vw, 3.4rem)/1.05 var(--serif); }
+.catalogue-intro > p { max-width: 390px; margin: 0; color: rgba(255,255,255,.68); font-size: .86rem; line-height: 1.7; }
+.catalogue-toolbar { display: grid; grid-template-columns: minmax(240px, 1fr) 220px auto; gap: .7rem; padding: 1.2rem 0; }
+.catalogue-search input, .catalogue-filter select { width: 100%; min-height: 46px; padding: .75rem .9rem; border: 1px solid rgba(255,255,255,.22); border-radius: 7px; background: rgba(255,255,255,.08); color: var(--white); }
+.catalogue-search input::placeholder { color: rgba(255,255,255,.48); }
+.catalogue-filter select option { color: var(--ink); }
+.verified-toggle { display: inline-flex; align-items: center; gap: .5rem; padding: 0 .65rem; color: rgba(255,255,255,.72); font: .65rem var(--mono); white-space: nowrap; }
+.catalogue-meta { display: flex; justify-content: space-between; padding: .7rem 0; color: var(--amber); font: .62rem var(--mono); text-transform: uppercase; }
+.catalogue-results { display: grid; gap: 1px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.16); }
+.catalogue-row { display: grid; grid-template-columns: 70px 1fr; gap: 1.2rem; padding: 1.25rem; background: var(--navy-dark); }
+.catalogue-mark { color: var(--amber); font: .62rem var(--mono); padding-top: .25rem; }
+.catalogue-result-heading { display: flex; justify-content: space-between; gap: 1rem; align-items: start; }
+.catalogue-kicker { margin: 0 0 .25rem; color: rgba(255,255,255,.5); font: .6rem var(--mono); text-transform: uppercase; }
+.catalogue-result-copy h3 { margin: 0; color: var(--white); font: 400 1.45rem var(--serif); }
+.catalogue-result-copy > p { max-width: 720px; margin: .45rem 0 1rem; color: rgba(255,255,255,.68); font-size: .82rem; }
+.status-pill { padding: .28rem .45rem; border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.6); font: .58rem var(--mono); text-transform: uppercase; white-space: nowrap; }
+.status-verified { border-color: var(--amber); color: var(--amber); }
+.spec-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; margin: 0; }
+.spec-list div { padding-top: .55rem; border-top: 1px solid rgba(255,255,255,.16); }
+.spec-list dt { color: var(--amber); font: .58rem var(--mono); text-transform: uppercase; }
+.spec-list dd { margin: .25rem 0 0; color: rgba(255,255,255,.72); font-size: .72rem; line-height: 1.45; }
+.catalogue-row-actions { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1rem; font: .62rem var(--mono); text-transform: uppercase; }
+.catalogue-row-actions a { color: var(--amber); text-decoration: none; }
+.catalogue-row-actions a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.catalogue-row-actions span { color: rgba(255,255,255,.45); }
+.catalogue-empty { padding: 2.5rem 0 1rem; color: rgba(255,255,255,.7); }
+.catalogue-empty strong { color: var(--white); font: 400 1.35rem var(--serif); }
+.catalogue-empty p { margin: .4rem 0 1rem; }
+.catalogue-empty .primary-button { display: inline-flex; }
 .service-list { display: grid; gap: .65rem; }
 .service-row { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 1.25rem; padding: 1.35rem 1.5rem; border: 1px solid var(--line); border-radius: 10px; background: var(--white); color: var(--ink); text-decoration: none; transition: border-color .18s ease, transform .18s ease; }
 .service-row:hover { transform: translateY(-2px); border-color: var(--navy); }
