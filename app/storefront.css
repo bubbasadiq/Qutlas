@@ -1,20 +1,19 @@
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Rubik:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap");
 
-/* Qutlas design system: editorial utility for materials and manufacturing. */
 :root {
-  --navy: #263b77;
-  --navy-dark: #17284f;
-  --amber: #d99a27;
-  --amber-light: #edbc58;
-  --paper: #f4f1e9;
-  --white: #fffdf8;
-  --ink: #1d2838;
-  --quiet: #5f6875;
-  --line: #d4d1c8;
+  --navy: #2b2f8c;
+  --navy-dark: #1f2268;
+  --amber: #ffaa00;
+  --amber-light: #ffc040;
+  --paper: #f5f3ed;
+  --white: #fff;
+  --ink: #171936;
+  --quiet: #727281;
+  --line: rgba(31, 34, 104, 0.17);
   --danger: #a53d20;
   --success: #2f6b4f;
-  --serif: "Archivo", Arial, sans-serif;
-  --body: "Source Sans 3", Arial, sans-serif;
+  --serif: "DM Serif Display", Georgia, serif;
+  --body: "Rubik", sans-serif;
   --mono: "IBM Plex Mono", monospace;
   --space-1: .35rem;
   --space-2: .65rem;
