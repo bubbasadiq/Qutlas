@@ -1,7 +1,6 @@
 export const materials = [
   { id: 'steel', name: 'Steel', description: 'Source sheet, plate, sections, bars, tubes, and made-to-measure components.', image: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/Mechanical_workshop.jpg/1280px-Mechanical_workshop.jpg', alt: 'Metal workshop with steel stock and fabrication benches.', detail: 'Sheet · plate · sections · bars · tubes' },
   { id: 'wood', name: 'Wood', description: 'Source boards, panels, timber, and made-to-measure wood components.', image: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c6/Stack_of_wooden_planks_-_close-up_01.jpg/1280px-Stack_of_wooden_planks_-_close-up_01.jpg', alt: 'Stacked timber boards showing the wood grain.', detail: 'Boards · panels · timber · components' },
-  { id: 'tiles', name: 'Tiles', description: 'Request tile options and quantities for a room or building project.', image: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/27/Ceramic_tile_6858.jpg/1280px-Ceramic_tile_6858.jpg', alt: 'Ceramic wall tiles used in a building interior.', detail: 'Floor · wall · wet areas · project supply' },
   { id: 'granite', name: 'Granite', description: 'Request granite for countertops, steps, and architectural finishes.', image: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b7/Granite_slabs_on_a_truck_awaiting_to_installed_in_a_kitchen.jpg/1280px-Granite_slabs_on_a_truck_awaiting_to_installed_in_a_kitchen.jpg', alt: 'Granite slabs prepared for delivery.', detail: 'Countertops · steps · cut-to-size surfaces' },
 ];
 
@@ -13,7 +12,7 @@ export const services = [
 ];
 
 export const resources = [
-  { href: '/resources/material-guides', title: 'Material guides', description: 'What to include when requesting steel, wood, tiles, or granite.' },
+  { href: '/resources/material-guides', title: 'Material guides', description: 'What to include when requesting steel, wood, or granite.' },
   { href: '/resources/drawings-and-files', title: 'Drawings and files', description: 'Prepare drawings, photos, or lists to help explain a requirement.' },
   { href: '/how-it-works', title: 'How it works', description: 'From initial details to quotation, approval, and fulfilment.' },
   { href: '/faqs', title: 'FAQs', description: 'Answers about requests, specifications, files, and quotations.' },
@@ -22,6 +21,5 @@ export const resources = [
 export const materialUseCases: Record<string, string[]> = {
   steel: ['Sheet and plate', 'Sections and bars', 'Tubes and profiles', 'Made-to-measure components'],
   wood: ['Boards and sheet materials', 'Timber', 'Panels', 'Cut-to-size components'],
-  tiles: ['Floor and wall tiles', 'Wet areas', 'Room quantities', 'Project supply enquiries'],
   granite: ['Countertops', 'Steps', 'Architectural surfaces', 'Cut-to-size enquiries'],
 };

@@ -1,5 +1,5 @@
-﻿
-import { createHash, randomBytes, randomUUID } from 'node:crypto';
+
+import { createHash, createHmac, randomUUID } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
@@ -15,7 +15,7 @@ const ALLOWED_EXTENSIONS = new Set([
 ]);
 
 const MATERIALS = new Set([
-  'steel', 'wood', 'tiles', 'granite', 'unsure',
+  'steel', 'wood', 'granite', 'unsure',
 ]);
 
 const START_MODES = new Set(['drawing', 'description', 'idea']);
@@ -36,6 +36,64 @@ function cleanText(value: unknown, maxLength = 5000): string {
   return typeof value === 'string' ? value.trim().slice(0, maxLength) : '';
 }
 
+function cleanSpecs(value: unknown): Record<string, string> {
+  if (!isRecord(value)) return {};
+  const entries = Object.entries(value).slice(0, 40);
+  const specs: Record<string, string> = {};
+  for (const [key, item] of entries) {
+    if (typeof item !== 'string' && typeof item !== 'number' && typeof item !== 'boolean') continue;
+    const safeKey = key.trim().slice(0, 80);
+    if (!safeKey) continue;
+    specs[safeKey] = String(item).trim().slice(0, 500);
+  }
+  return specs;
+}
+
+async function readJsonBody(request: Request, maxBytes = 64 * 1024): Promise<unknown> {
+  const declaredLength = request.headers.get('content-length');
+
+  if (declaredLength !== null) {
+    const length = Number(declaredLength);
+    if (!Number.isSafeInteger(length) || length < 0 || length > maxBytes) {
+      throw new Error('BODY_TOO_LARGE');
+    }
+  }
+
+  if (!request.body) throw new Error('INVALID_JSON');
+
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > maxBytes) {
+        await reader.cancel();
+        throw new Error('BODY_TOO_LARGE');
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  try {
+    return JSON.parse(new TextDecoder().decode(bytes)) as unknown;
+  } catch {
+    throw new Error('INVALID_JSON');
+  }
+}
+
 export async function POST(request: Request) {
   const supabaseUrl = process.env.SUPABASE_URL;
   const secretKey = process.env.SUPABASE_SECRET_KEY;
@@ -48,15 +106,19 @@ export async function POST(request: Request) {
   let body: Record<string, unknown>;
 
   try {
-    const parsed: unknown = await request.json();
-
-    if (!isRecord(parsed)) {
-      return fail('Invalid enquiry data.');
-    }
-
+    const parsed = await readJsonBody(request);
+    if (!isRecord(parsed)) return fail('Invalid enquiry data.');
     body = parsed;
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message === 'BODY_TOO_LARGE') {
+      return fail('The request is too large. Reduce the details or number of files and try again.', 413);
+    }
     return fail('The request body must be valid JSON.');
+  }
+
+  const idempotencyKey = request.headers.get('idempotency-key')?.trim() ?? '';
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(idempotencyKey)) {
+    return fail('The request could not be safely identified. Refresh the form and try again.', 400);
   }
 
   const details = body.details;
@@ -111,6 +173,8 @@ export async function POST(request: Request) {
     extension: string;
   }> = [];
 
+  let totalFileBytes = 0;
+
   for (const item of requestedFiles) {
     if (!isRecord(item)) {
       return fail('One of the file details is invalid.');
@@ -136,7 +200,12 @@ export async function POST(request: Request) {
       return fail(`Each file must be no larger than 10 MB: ${name}.`);
     }
 
-    fileInputs.push({ name, size, type, extension });
+    totalFileBytes += size;
+    if (totalFileBytes > 40 * 1024 * 1024) {
+      return fail('The combined file size must not exceed 40 MB.');
+    }
+
+    fileInputs.push({ name, size, type: type.slice(0, 150), extension });
   }
 
   const supabase = createClient(supabaseUrl, secretKey, {
@@ -146,6 +215,79 @@ export async function POST(request: Request) {
     },
   });
 
+  const idempotencyKeyHash = createHash('sha256').update(idempotencyKey).digest('hex');
+  const requestFingerprint = createHash('sha256').update(JSON.stringify({
+    material, startMode, needType, description, customerName, email, phone, location,
+    quantity, details: {
+      itemName: cleanText(details.itemName, 300),
+      company: cleanText(details.company, 300),
+      specs: cleanSpecs(details.specs),
+      quantityUnit: cleanText(details.quantityUnit, 50),
+      delivery: cleanText(details.delivery, 100),
+      contactMethod: cleanText(details.contactMethod, 100),
+      instructions: cleanText(details.instructions),
+    },
+    files: fileInputs.map(({ name, size, type }) => ({ name, size, type })),
+  })).digest('hex');
+
+  const { data: existing, error: existingError } = await supabase
+    .from('enquiries')
+    .select('id, reference, files, upload_token_hash, uploads_completed, request_fingerprint')
+    .eq('idempotency_key_hash', idempotencyKeyHash)
+    .maybeSingle();
+
+  if (existingError) {
+    console.error('Could not check enquiry idempotency:', existingError);
+    return fail('Could not check your request. Please try again.', 502);
+  }
+
+  if (existing) {
+    if (existing.request_fingerprint !== requestFingerprint) {
+      return fail('This submission key was already used for different details. Refresh the form before submitting a changed request.', 409);
+    }
+
+    if (existing.uploads_completed) {
+      return NextResponse.json({
+        reference: existing.reference,
+        enquiryId: existing.id,
+        uploadSecret: null,
+        uploads: [],
+        alreadyCompleted: true,
+      });
+    }
+
+    const storedManifest = Array.isArray(existing.files) ? existing.files : [];
+
+    if (storedManifest.length !== fileInputs.length) {
+      return fail('The stored upload manifest does not match this submission.', 500);
+    }
+
+    const uploadSecret = fileInputs.length
+      ? createHmac('sha256', secretKey).update(`qutlas-upload:${existing.id}:${idempotencyKeyHash}`).digest('hex')
+      : null;
+    const uploadInstructions: Array<{ path: string; token: string }> = [];
+
+    for (const item of storedManifest) {
+      if (!isRecord(item) || typeof item.path !== 'string') {
+        return fail('The stored upload manifest is invalid.', 500);
+      }
+      const { data, error } = await supabase.storage.from(BUCKET).createSignedUploadUrl(item.path, { upsert: true });
+      if (error || !data?.token) {
+        console.error('Could not recreate signed upload permission:', error);
+        return fail('Could not resume file uploads. Please contact Qutlas Support and quote your reference.', 502);
+      }
+      uploadInstructions.push({ path: item.path, token: data.token });
+    }
+
+    return NextResponse.json({
+      reference: existing.reference,
+      enquiryId: existing.id,
+      uploadSecret,
+      uploads: uploadInstructions,
+      alreadyCompleted: false,
+    });
+  }
+
   const id = randomUUID();
   const reference = `QUT-${new Date().getFullYear()}-${id
     .replace(/-/g, '')
@@ -153,7 +295,7 @@ export async function POST(request: Request) {
     .toUpperCase()}`;
 
   const uploadSecret = fileInputs.length
-    ? randomBytes(32).toString('hex')
+    ? createHmac('sha256', secretKey).update(`qutlas-upload:${id}:${idempotencyKeyHash}`).digest('hex')
     : null;
 
   const uploadEntries: Array<{
@@ -174,7 +316,7 @@ export async function POST(request: Request) {
 
       const { data, error } = await supabase.storage
         .from(BUCKET)
-        .createSignedUploadUrl(path);
+        .createSignedUploadUrl(path, { upsert: true });
 
       if (error || !data?.token) {
         console.error('Could not create signed upload permission:', error);
@@ -203,7 +345,7 @@ export async function POST(request: Request) {
       need_type: needType,
       item_name: cleanText(details.itemName, 300) || null,
       description,
-      specifications: isRecord(details.specs) ? details.specs : {},
+      specifications: cleanSpecs(details.specs),
       quantity,
       quantity_unit: cleanText(details.quantityUnit, 50) || null,
       customer_name: customerName,
@@ -220,6 +362,8 @@ export async function POST(request: Request) {
         ? createHash('sha256').update(uploadSecret).digest('hex')
         : null,
       notification_status: 'pending',
+      idempotency_key_hash: idempotencyKeyHash,
+      request_fingerprint: requestFingerprint,
     };
 
     const { error } = await supabase
@@ -227,6 +371,89 @@ export async function POST(request: Request) {
       .insert(record);
 
     if (error) {
+      // Recover only when the database reports a unique-key conflict
+      // and the existing idempotency key resolves to an enquiry.
+      if (error.code === '23505') {
+        const {
+          data: raced,
+          error: racedError,
+        } = await supabase
+          .from('enquiries')
+          .select(
+            'id, reference, files, upload_token_hash, uploads_completed, request_fingerprint'
+          )
+          .eq('idempotency_key_hash', idempotencyKeyHash)
+          .maybeSingle();
+
+        if (racedError) {
+          console.error('Could not recover concurrent enquiry:', racedError);
+          return fail('We could not confirm your saved enquiry. Please retry shortly.', 502);
+        }
+
+        if (raced) {
+          if (raced.request_fingerprint !== requestFingerprint) {
+            return fail(
+              'This submission key was already used for different details. Refresh the form before submitting a changed request.',
+              409
+            );
+          }
+
+          if (raced.uploads_completed) {
+            return NextResponse.json({
+              reference: raced.reference,
+              enquiryId: raced.id,
+              uploadSecret: null,
+              uploads: [],
+              alreadyCompleted: true,
+            });
+          }
+
+          const manifest = Array.isArray(raced.files) ? raced.files : [];
+
+          if (manifest.length !== fileInputs.length) {
+            console.error('Recovered enquiry file manifest does not match request.');
+            return fail('The saved enquiry has an invalid upload manifest. Please contact support.', 500);
+          }
+
+          const recoveredUploadSecret = fileInputs.length
+            ? createHmac('sha256', secretKey)
+                .update(`qutlas-upload:${raced.id}:${idempotencyKeyHash}`)
+                .digest('hex')
+            : null;
+
+          const recoveredUploads: Array<{ path: string; token: string }> = [];
+
+          for (const item of manifest) {
+            if (!isRecord(item) || typeof item.path !== 'string') {
+              console.error('Recovered enquiry contains an invalid upload manifest.');
+              return fail('The saved enquiry has an invalid upload manifest. Please contact support.', 500);
+            }
+
+            const { data, error: signingError } = await supabase.storage
+              .from(BUCKET)
+              .createSignedUploadUrl(item.path, { upsert: true });
+
+            if (signingError || !data?.token) {
+              console.error('Could not resume recovered enquiry uploads:', signingError);
+              return fail('Could not resume file uploads. Please retry shortly.', 502);
+            }
+
+            recoveredUploads.push({
+              path: item.path,
+              token: data.token,
+            });
+          }
+
+          return NextResponse.json({
+            reference: raced.reference,
+            enquiryId: raced.id,
+            uploadSecret: recoveredUploadSecret,
+            uploads: recoveredUploads,
+            alreadyCompleted: false,
+          });
+        }
+      }
+
       console.error('Could not save enquiry:', error);
       return fail('We could not save your enquiry. Please try again.', 502);
     }

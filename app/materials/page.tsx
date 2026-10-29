@@ -3,7 +3,7 @@ import { materials } from '../site-data';
 
 export const metadata = {
   title: 'Materials | Qutlas',
-  description: 'Browse steel, wood, tiles, and granite project requests through Qutlas.',
+  description: 'Browse steel, wood, and granite project requests through Qutlas.',
 };
 
 export default function MaterialsPage() {

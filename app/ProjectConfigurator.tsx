@@ -1,10 +1,10 @@
 
 'use client';
 
-import { ChangeEvent, DragEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, DragEvent, FormEvent, useState, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-export type MaterialId = 'steel' | 'wood' | 'tiles' | 'granite' | 'unsure';
+export type MaterialId = 'steel' | 'wood' | 'granite' | 'unsure';
 type StartMode = 'drawing' | 'description' | 'idea';
 type NeedType = 'material' | 'cut' | 'component' | 'assembly' | 'project' | 'custom';
 
@@ -40,7 +40,6 @@ type Draft = {
 const materialLabels: Record<MaterialId, string> = {
   steel: 'Steel',
   wood: 'Wood',
-  tiles: 'Tiles',
   granite: 'Granite',
   unsure: 'Not sure yet',
 };
@@ -61,13 +60,6 @@ const materialFields: Partial<Record<MaterialId, Field[]>> = {
     { name: 'length', label: 'Length (optional)', type: 'number', unit: 'mm' },
     { name: 'width', label: 'Width (optional)', type: 'number', unit: 'mm' },
     { name: 'finish', label: 'Cutting or finish needed', type: 'select', options: ['Supply only', 'Cut to size', 'Edge treatment', 'Assembly', 'More than one service', 'Not sure'] },
-  ],
-  tiles: [
-    { name: 'application', label: 'Where will the tiles be used?', type: 'select', options: ['Floor', 'Wall', 'Bathroom or wet area', 'Outdoor area', 'Not sure'] },
-    { name: 'tileSize', label: 'Preferred tile size (if known)', placeholder: 'For example, 600 x 600 mm' },
-    { name: 'tileType', label: 'Tile type or style (if known)', placeholder: 'For example, ceramic or porcelain' },
-    { name: 'colour', label: 'Colour or finish preference (optional)' },
-    { name: 'area', label: 'Area to cover (optional)', type: 'number', unit: 'm²' },
   ],
   granite: [
     { name: 'application', label: 'What is the granite for?', type: 'select', options: ['Countertop', 'Steps', 'Floor or wall finish', 'Other surface', 'Not sure'] },
@@ -112,7 +104,7 @@ function createDraft(material: MaterialId, startMode: StartMode): Draft {
     description: '',
     specs: {},
     quantity: '1',
-    quantityUnit: material === 'tiles' ? 'm²' : 'pieces',
+    quantityUnit: 'pieces',
     files: [],
     name: '',
     company: '',
@@ -152,6 +144,7 @@ export default function ProjectConfigurator({
   const [status, setStatus] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const idempotencyKeyRef = useRef<string | null>(null);
 
   const updateDraft = <K extends keyof Draft>(key: K, value: Draft[K]) => {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -169,7 +162,7 @@ export default function ProjectConfigurator({
       ...current,
       material,
       specs: {},
-      quantityUnit: material === 'tiles' ? 'm²' : 'pieces',
+      quantityUnit: 'pieces',
     }));
   };
 
@@ -268,9 +261,16 @@ export default function ProjectConfigurator({
 
       const supabase = createClient(supabaseUrl, supabaseKey);
 
+      if (!idempotencyKeyRef.current) {
+        idempotencyKeyRef.current = globalThis.crypto.randomUUID();
+      }
+
       const response = await fetch('/api/enquiries', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Idempotency-Key': idempotencyKeyRef.current,
+        },
         body: JSON.stringify({
           details: {
             material: draft.material,
@@ -314,7 +314,7 @@ export default function ProjectConfigurator({
 
       reference = result.reference;
 
-      if (draft.files.length > 0) {
+      if (draft.files.length > 0 && result.alreadyCompleted !== true) {
         if (
           typeof result.enquiryId !== 'string' ||
           typeof result.uploadSecret !== 'string' ||
@@ -344,7 +344,7 @@ export default function ProjectConfigurator({
             .from('qutlas-project-files')
             .uploadToSignedUrl(upload.path, upload.token, file, {
               contentType: file.type || 'application/octet-stream',
-              upsert: false,
+              upsert: true,
             });
 
           if (uploadError) {
@@ -379,6 +379,7 @@ export default function ProjectConfigurator({
       );
 
       setDraft((current) => ({ ...current, files: [] }));
+      idempotencyKeyRef.current = null;
     } catch (submissionError) {
       console.error('Qutlas enquiry submission failed:', submissionError);
 
@@ -396,7 +397,7 @@ export default function ProjectConfigurator({
     }
   };
 
-  const materialOptions: MaterialId[] = ['steel', 'wood', 'tiles', 'granite', 'unsure'];
+  const materialOptions: MaterialId[] = ['steel', 'wood', 'granite', 'unsure'];
   const stepNames = ['Choose', 'Describe', 'Specifications', 'Your details', 'Review'];
 
   return (

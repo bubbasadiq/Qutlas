@@ -5,11 +5,11 @@ import SiteHeader from "./SiteHeader";
 import "./storefront.css";
 
 export const metadata: Metadata = {
-  title: "Qutlas | Steel, Wood, Tiles and Granite",
+  title: "Qutlas | Steel, Wood and Granite",
   description: "Source materials, request cut-to-size components, and bring project requirements together with Qutlas.",
   openGraph: {
     title: "Qutlas | Materials in. Possibilities out.",
-    description: "Source steel, wood, tiles and granite. Start a project with Qutlas.",
+    description: "Source steel, wood and granite. Start a project with Qutlas.",
     type: "website",
   },
 };

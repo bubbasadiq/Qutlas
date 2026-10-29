@@ -4,10 +4,10 @@ A Next.js site for material supply and custom manufacturing project requests in 
 
 ## Features
 
-- **Material discovery**: Steel, wood, tiles and granite, with category-specific project details
+- **Material discovery**: Steel, wood and granite, with category-specific project details
 - **Responsive design**: Desktop and mobile layouts using the existing navy/amber identity
 - **Accessible controls**: Semantic labels, keyboard-friendly steps, focus states and validation
-- **Project configurator**: Progressive material-specific quote flow for steel, wood, tiles and granite, with drawing/idea entry points and a review step
+- **Project configurator**: Progressive material-specific quote flow for steel, wood and granite, with drawing/idea entry points and a review step
 
 The project flow does not persist submissions or upload files. Quote drafts default to `support@qutlas.com`; business enquiries default to `hello@qutlas.com`. Customers must review and send email drafts themselves and attach their design files. Override recipients with `NEXT_PUBLIC_QUOTE_EMAIL` and `NEXT_PUBLIC_BUSINESS_EMAIL`. See [docs/manufacturing-workflow.md](docs/manufacturing-workflow.md) and [docs/sendcutsend-benchmark.md](docs/sendcutsend-benchmark.md) for workflow details.
 

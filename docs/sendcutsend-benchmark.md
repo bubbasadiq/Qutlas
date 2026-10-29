@@ -16,7 +16,7 @@ Checked 2026-10-19 using the cited public pages, page text, and a read-only REA 
 - Use one strong homepage proposition and send every material card to the same project flow with its material preselected.
 - Keep “drawing,” “description,” and “idea” as valid starting modes; a CAD file is optional.
 - Use progressive steps: material and need, project description/files, material-specific details, customer/location, then review.
-- Ask material-specific questions: steel form/grade and fabrication; wood type/board and cut/edge work; tile application/style and area or box quantity; granite application, finish, dimensions, cut-outs, and installation interest.
+- Ask material-specific questions: steel form/grade and fabrication; wood type/board and cut/edge work; granite application, finish, dimensions, cut-outs, and installation interest.
 - Use metric dimensions and selectable quantity units. Route unknown or unsupported specifications to quote review rather than guessing a price or process.
 - Do not copy SendCutSend brand, copy, page design, pricing, service claims, production times, or account functionality. Qutlas currently has no live price engine, upload storage, order tracking, or verified workshop-capacity feed.
 

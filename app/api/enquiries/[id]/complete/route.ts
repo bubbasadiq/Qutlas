@@ -20,6 +20,45 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+async function readJsonBody(request: Request, maxBytes = 4 * 1024): Promise<unknown> {
+  const declaredLength = request.headers.get('content-length');
+  if (declaredLength !== null) {
+    const length = Number(declaredLength);
+    if (!Number.isSafeInteger(length) || length < 0 || length > maxBytes) {
+      throw new Error('BODY_TOO_LARGE');
+    }
+  }
+  if (!request.body) throw new Error('INVALID_JSON');
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > maxBytes) {
+        await reader.cancel();
+        throw new Error('BODY_TOO_LARGE');
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  try {
+    return JSON.parse(new TextDecoder().decode(bytes)) as unknown;
+  } catch {
+    throw new Error('INVALID_JSON');
+  }
+}
+
 export async function POST(request: Request, context: RouteContext) {
   const supabaseUrl = process.env.SUPABASE_URL;
   const secretKey = process.env.SUPABASE_SECRET_KEY;
@@ -39,7 +78,7 @@ export async function POST(request: Request, context: RouteContext) {
   let body: unknown;
 
   try {
-    body = await request.json();
+    body = await readJsonBody(request);
   } catch {
     return fail('Invalid completion request.', 400);
   }
@@ -143,43 +182,58 @@ export async function POST(request: Request, context: RouteContext) {
     return fail('Could not verify your uploads. Please try again.', 502);
   }
 
+  const expectedNames = new Set(expectedFiles.map((file) => file.path.split('/').pop()!));
+  if (
+    storedFiles.length !== expectedFiles.length ||
+    storedFiles.some((file) => !expectedNames.has(file.name))
+  ) {
+    return fail('The uploaded files do not match the expected file list. Please retry your upload.', 409);
+  }
+
   for (const expected of expectedFiles) {
     const filename = expected.path.split('/').pop()!;
     const actual = storedFiles.find((file) => file.name === filename);
+    const actualSize = actual?.metadata?.size;
 
     if (!actual) {
-      return fail(
-        'One or more files are still uploading or missing. Please retry.',
-        409,
-      );
+      return fail('One or more files are still uploading or missing. Please retry.', 409);
     }
 
-    const actualSize = actual.metadata?.size;
-
     if (
-      actualSize !== undefined &&
-      actualSize !== null &&
+      actualSize === undefined ||
+      actualSize === null ||
+      !Number.isFinite(Number(actualSize)) ||
       Number(actualSize) !== expected.size
     ) {
-      return fail(
-        'A stored file does not match its expected size. Please upload it again.',
-        409,
-      );
+      return fail('A stored file does not match its expected size. Please upload it again.', 409);
     }
   }
 
-  const { error: updateError } = await supabase
+  const { data: updatedRows, error: updateError } = await supabase
     .from('enquiries')
     .update({
       uploads_completed: true,
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)
-    .eq('uploads_completed', false);
+    .eq('uploads_completed', false)
+    .select('id');
 
   if (updateError) {
     console.error('Could not mark uploads complete:', updateError);
     return fail('Your files were uploaded but confirmation failed. Please retry.', 502);
+  }
+
+  if (!updatedRows || updatedRows.length === 0) {
+    const { data: latest, error: latestError } = await supabase
+      .from('enquiries')
+      .select('uploads_completed')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (latestError || !latest?.uploads_completed) {
+      return fail('Upload confirmation changed while processing. Please retry.', 409);
+    }
   }
 
   return NextResponse.json({
