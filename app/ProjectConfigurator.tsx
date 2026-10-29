@@ -95,12 +95,12 @@ const acceptedExtensions = new Set([
 const maxFileSize = 10 * 1024 * 1024;
 const maxFiles = 8;
 
-function createDraft(material: MaterialId, startMode: StartMode): Draft {
+function createDraft(material: MaterialId, startMode: StartMode, itemName = ''): Draft {
   return {
     material,
     startMode,
     need: material === 'unsure' ? 'custom' : 'material',
-    itemName: '',
+    itemName: itemName.trim().slice(0, 300),
     description: '',
     specs: {},
     quantity: '1',
@@ -126,9 +126,11 @@ function formatBytes(bytes: number) {
 export default function ProjectConfigurator({
   initialMaterial = 'unsure',
   initialStartMode = 'description',
+  initialItemName = '',
 }: {
   initialMaterial?: string;
   initialStartMode?: string;
+  initialItemName?: string;
 }) {
   const validMaterial = Object.prototype.hasOwnProperty.call(materialLabels, initialMaterial)
     ? (initialMaterial as MaterialId)
@@ -138,7 +140,7 @@ export default function ProjectConfigurator({
     ? (initialStartMode as StartMode)
     : 'description';
 
-  const [draft, setDraft] = useState(() => createDraft(validMaterial, validStart));
+  const [draft, setDraft] = useState(() => createDraft(validMaterial, validStart, initialItemName));
   const [step, setStep] = useState(0);
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');

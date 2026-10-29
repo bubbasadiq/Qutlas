@@ -1,103 +1,64 @@
-# Qutlas: Materials and Custom Manufacturing
+# Qutlas: Materials, Parts and Fabrication
 
-A Next.js site for material supply and custom manufacturing project requests in Nigeria.
+Qutlas is a Next.js application for material discovery, catalogue-led order requests, and custom manufacturing enquiries in Nigeria.
 
-## Features
+## Current customer journeys
 
-- **Material discovery**: Steel, wood and granite, with category-specific project details
-- **Responsive design**: Desktop and mobile layouts using the existing navy/amber identity
-- **Accessible controls**: Semantic labels, keyboard-friendly steps, focus states and validation
-- **Project configurator**: Progressive material-specific quote flow for steel, wood and granite, with drawing/idea entry points and a review step
+- **Material discovery:** steel, wood and granite pages with enquiry entry points.
+- **Catalogue:** searchable material and component entries with specification fields.
+- **Shop selection:** add catalogue entries to a browser-persisted cart and adjust quantities.
+- **Order request:** submit contact and delivery details to the server-side enquiry API. The API requires an idempotency key and persists requests to Supabase.
+- **Project configurator:** submit a project brief and, when included, upload drawings or supporting files through signed Supabase Storage upload URLs.
 
-The project flow does not persist submissions or upload files. Quote drafts default to `support@qutlas.com`; business enquiries default to `hello@qutlas.com`. Customers must review and send email drafts themselves and attach their design files. Override recipients with `NEXT_PUBLIC_QUOTE_EMAIL` and `NEXT_PUBLIC_BUSINESS_EMAIL`. See [docs/manufacturing-workflow.md](docs/manufacturing-workflow.md) and [docs/sendcutsend-benchmark.md](docs/sendcutsend-benchmark.md) for workflow details.
+## Important commercial boundaries
 
-## Tech Stack
+The catalogue is enquiry-led. Items marked `to-confirm` do not have verified prices or guaranteed availability. Qutlas must confirm specification, stock, pricing, lead time and delivery before a quotation or order is accepted.
 
-- **Framework**: Next.js 16
-- **Styling**: CSS with existing Qutlas palette and typography
-- **React Version**: 19.0.0
+Checkout currently submits an **order request**, not a paid order. Payment processing, stock reservation, fulfilment tracking and customer-facing order status are not implemented. Do not represent an order request as payment or purchase confirmation.
 
-## Getting Started
+## Environment
 
-### Installation
+The server-side enquiry routes require:
 
-```bash
-npm install
-# or
-yarn install
-# or
-pnpm install
+- `SUPABASE_URL`
+- `SUPABASE_SECRET_KEY`
+
+The browser project configurator may also require the public Supabase URL and publishable key, as defined by its current implementation and `.env.example`.
+
+Never commit `.env` files or service-role/secret keys. Use a separate Supabase project for integration testing. Avoid test submissions against production data.
+
+## Getting started
+
+Install dependencies using the package manager represented by `pnpm-lock.yaml`:
+
+```powershell
+corepack pnpm install
+corepack pnpm dev
 ```
 
-### Development
+Open `http://localhost:3000` unless another process is using that port.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+## Validation
+
+```powershell
+corepack pnpm lint
+corepack pnpm exec tsc --noEmit
+corepack pnpm build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to see the site.
+## Main structure
 
-### Build
+- `app/page.tsx`: homepage
+- `app/materials/`: material catalogue and material pages
+- `app/shop/`: shop catalogue
+- `app/checkout/`: cart review and order-request submission
+- `app/ProjectConfigurator.tsx`: project enquiry flow
+- `app/api/enquiries/route.ts`: server-side enquiry creation and upload preparation
+- `app/api/enquiries/[id]/complete/route.ts`: upload verification and completion
+- `app/site-data.ts`: material, service, and catalogue content
+- `app/storefront.css`: shared storefront styling
+- `docs/`: workflow notes and benchmark research
 
-```bash
-npm run build
-npm start
-```
+## Commercial and operational gaps
 
-## Project Structure
-
-```
-├── app/
-│   ├── layout.tsx        # Root layout with metadata
-│   ├── page.tsx          # Materials homepage
-│   ├── ProjectConfigurator.tsx # Multi-step project request
-│   ├── project/page.tsx  # Preselected project route
-│   └── storefront.css    # Homepage and configurator styles
-├── public/
-│   └── icon_logo.png     # Qutlas logo
-├── package.json          # Project dependencies
-├── tsconfig.json         # TypeScript configuration
-├── next.config.js        # Next.js configuration
-└── .eslintrc.json        # ESLint configuration
-```
-
-## Sections
-
-1. **Homepage**: Materials, project entry routes, buying steps, use cases and business requirements
-2. **Project configurator**: Progressive material selection, specifications, contact details and review
-
-## Customization
-
-### Colors
-
-Edit the CSS variables in `app/storefront.css`:
-
-```css
-:root {
-  --navy: #2b2f8c;
-  --amber: #ffaa00;
-  /* ... other colors ... */
-}
-```
-
-### Fonts
-
-The project uses Google Fonts:
-- **DM Serif Display**: Headings
-- **Rubik**: Body text
-- **IBM Plex Mono**: Code and labels
-
-## Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-
-## License
-
-Proprietary - All rights reserved © 2024 Qutlas
+Before treating this as a production commerce system, implement and test staff enquiry review, quotation creation and approval, stock/availability confirmation, notifications, role-protected administration, payment integration, fulfilment statuses, retention policies, and operational monitoring.
