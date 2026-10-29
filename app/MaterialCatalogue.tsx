@@ -23,15 +23,15 @@ export function MaterialCatalogue({ mode = 'catalogue' }: { mode?: 'catalogue' |
   return (
     <section className="catalogue-shell" aria-labelledby="catalogue-title">
       <div className="catalogue-intro">
-        <div><p className="eyebrow">Structured catalogue</p><h2 id="catalogue-title">Find the form, not just the material.</h2></div>
-        <p>{mode === 'shop' ? 'Search parts by name, form or specification. Add fasteners and hardware to your cart, then submit one complete order request.' : 'Search by a product name or specification, then carry the selection into a project request. Availability, price and unverified attributes are confirmed before quotation.'}</p>
+        <div><p className="eyebrow">Structured catalogue</p><h2 id="catalogue-title">Start with the material. Specify the requirement.</h2></div>
+        <p>{mode === 'shop' ? 'Explore available material forms and specifications. Add a requirement to your project or request confirmation before ordering.' : 'Search by a product name or specification, then carry the selection into a project request. Availability, price and unverified attributes are confirmed before quotation.'}</p>
       </div>
       <div className="catalogue-toolbar">
         <label className="catalogue-search"><span className="sr-only">Search catalogue</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search steel, plywood, hinge, bolt…" /></label>
         <label className="catalogue-filter"><span className="sr-only">Filter by category</span><select value={category} onChange={(event) => setCategory(event.target.value)}><option value="all">All categories</option>{catalogueCategories.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}</select></label>
         <label className="verified-toggle"><input type="checkbox" checked={verifiedOnly} onChange={(event) => setVerifiedOnly(event.target.checked)} /> <span>Verified fields only</span></label>
       </div>
-      <div className="catalogue-meta"><span>{results.length} catalogue {results.length === 1 ? 'entry' : 'entries'}</span><span>Initial release · enquiry-led</span></div>
+      <div className="catalogue-meta"><span>{results.length} catalogue {results.length === 1 ? 'entry' : 'entries'}</span><span>Specifications and availability confirmed per request</span></div>
       <div className="catalogue-results" aria-live="polite">
         {mode === 'shop' ? <div className="shop-product-grid">{results.map((product) => <ShopProductCard product={product} key={product.id} />)}</div> : results.map((product) => <article className="catalogue-row" key={product.id}>
           <div className="catalogue-mark" aria-hidden="true">{product.code}</div>

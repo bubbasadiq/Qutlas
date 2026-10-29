@@ -6,11 +6,11 @@ import "./storefront.css";
 import { ShopCartProvider } from './ShopCart';
 
 export const metadata: Metadata = {
-  title: "Qutlas | Materials, parts and fabrication",
-  description: "Source materials, request cut-to-size components, and bring project requirements together with Qutlas.",
+  title: "Qutlas | Materials, parts and making",
+  description: "Source steel, wood and granite. Develop components, explore Qutters Lab, and turn project requirements into things you can make.",
   openGraph: {
-    title: "Qutlas | Materials in. Possibilities out.",
-    description: "Source steel, wood and granite. Start a project with Qutlas.",
+    title: "Qutlas | From raw material to real things.",
+    description: "Source steel, wood and granite. Start with a material, drawing or idea.",
     type: "website",
   },
 };

@@ -42,6 +42,8 @@ export default function SiteHeader() {
           <button type="button" className="nav-trigger" aria-expanded={openMenu === 'materials'} aria-controls="materials-menu" onClick={() => toggle('materials')}>Materials <span aria-hidden="true">⌄</span></button>
           {openMenu === 'materials' && <div className="nav-popover" id="materials-menu">{materials.map((material) => <Link href={`/materials/${material.id}`} key={material.id} onClick={close}>{material.name}<small>{material.detail}</small></Link>)}<Link className="popover-all" href="/materials" onClick={close}>Browse all materials</Link></div>}
         </div>
+        <Link href="/shop" onClick={close}>Shop</Link>
+        <Link href="/qutters-lab" onClick={close}>Qutters Lab</Link>
         <div className="nav-group">
           <button type="button" className="nav-trigger" aria-expanded={openMenu === 'services'} aria-controls="services-menu" onClick={() => toggle('services')}>Services <span aria-hidden="true">⌄</span></button>
           {openMenu === 'services' && <div className="nav-popover" id="services-menu">{services.map((service) => <Link href={`/services/${service.id}`} key={service.id} onClick={close}>{service.name}<small>{service.description}</small></Link>)}<Link className="popover-all" href="/services" onClick={close}>All services</Link></div>}
@@ -59,6 +61,8 @@ export default function SiteHeader() {
         <details><summary>Materials</summary><div>{materials.map((material) => <Link href={`/materials/${material.id}`} key={material.id} onClick={close}>{material.name}</Link>)}<Link href="/materials" onClick={close}>Browse all materials</Link></div></details>
         <details><summary>Services</summary><div>{services.map((service) => <Link href={`/services/${service.id}`} key={service.id} onClick={close}>{service.name}</Link>)}<Link href="/services" onClick={close}>All services</Link></div></details>
         <details><summary>Resources</summary><div>{resources.map((resource) => <Link href={resource.href} key={resource.href} onClick={close}>{resource.title}</Link>)}</div></details>
+        <Link href="/shop" onClick={close}>Shop</Link>
+        <Link href="/qutters-lab" onClick={close}>Qutters Lab</Link>
         <Link href="/business" onClick={close}>For business</Link>
         <Link href="/about" onClick={close}>About</Link>
         <Link className="mobile-start" href="/project" onClick={close}>Start a project ↗</Link>

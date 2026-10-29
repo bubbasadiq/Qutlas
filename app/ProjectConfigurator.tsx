@@ -146,7 +146,7 @@ export default function ProjectConfigurator({
   const [status, setStatus] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const idempotencyKeyRef = useRef<string | null>(null);
+  const idempotencyKeyRef = useRef<{ fingerprint: string; key: string } | null>(null);
 
   const updateDraft = <K extends keyof Draft>(key: K, value: Draft[K]) => {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -263,41 +263,50 @@ export default function ProjectConfigurator({
 
       const supabase = createClient(supabaseUrl, supabaseKey);
 
-      if (!idempotencyKeyRef.current) {
-        idempotencyKeyRef.current = globalThis.crypto.randomUUID();
+      const payload = {
+        details: {
+          material: draft.material,
+          startMode: draft.startMode,
+          need: draft.need,
+          itemName: draft.itemName,
+          description: draft.description,
+          specs: draft.specs,
+          quantity: draft.quantity,
+          quantityUnit: draft.quantityUnit,
+          name: draft.name,
+          company: draft.company,
+          phone: draft.phone,
+          email: draft.email,
+          location: draft.location,
+          delivery: draft.delivery,
+          contactMethod: draft.contactMethod,
+          instructions: draft.instructions,
+        },
+        files: draft.files.map((file) => ({
+          name: file.name,
+          size: file.size,
+          type: file.type,
+        })),
+      };
+      const requestBody = JSON.stringify(payload);
+      const fingerprint = requestBody;
+
+      // A retry of identical details reuses its key. Editing the form or file
+      // list creates a new key, matching the API's idempotency contract.
+      if (!idempotencyKeyRef.current || idempotencyKeyRef.current.fingerprint !== fingerprint) {
+        idempotencyKeyRef.current = {
+          fingerprint,
+          key: globalThis.crypto.randomUUID(),
+        };
       }
 
       const response = await fetch('/api/enquiries', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Idempotency-Key': idempotencyKeyRef.current,
+          'Idempotency-Key': idempotencyKeyRef.current.key,
         },
-        body: JSON.stringify({
-          details: {
-            material: draft.material,
-            startMode: draft.startMode,
-            need: draft.need,
-            itemName: draft.itemName,
-            description: draft.description,
-            specs: draft.specs,
-            quantity: draft.quantity,
-            quantityUnit: draft.quantityUnit,
-            name: draft.name,
-            company: draft.company,
-            phone: draft.phone,
-            email: draft.email,
-            location: draft.location,
-            delivery: draft.delivery,
-            contactMethod: draft.contactMethod,
-            instructions: draft.instructions,
-          },
-          files: draft.files.map((file) => ({
-            name: file.name,
-            size: file.size,
-            type: file.type,
-          })),
-        }),
+        body: requestBody,
       });
 
       const result = await response.json();

@@ -113,10 +113,10 @@ export default function CheckoutPage() {
     return (
       <main className="checkout-page">
         <div className="checkout-success">
-          <p className="eyebrow">Order request received</p>
-          <h1>We have your order request.</h1>
+          <p className="eyebrow">Quote request received</p>
+          <h1>We have received your request.</h1>
           <p>Your reference is <strong>{submitted}</strong>. No payment has been taken. Availability, specification, pricing and delivery still require review and confirmation. Keep this reference for follow-up.</p>
-          <Link className="primary-button" href="/shop">Continue shopping <span aria-hidden="true">↗</span></Link>
+          <Link className="primary-button" href="/shop">Back to materials <span aria-hidden="true">↗</span></Link>
         </div>
       </main>
     );
@@ -128,7 +128,7 @@ export default function CheckoutPage() {
         <div className="empty-cart">
           <p className="eyebrow">Your cart</p>
           <h1>Nothing here yet.</h1>
-          <p>Browse the Qutlas catalogue to add materials, hardware and components to an order request.</p>
+          <p>Browse steel, wood and granite, then add the materials you want us to review.</p>
           <Link className="primary-button" href="/shop">Browse the catalogue <span aria-hidden="true">↗</span></Link>
         </div>
       </main>
@@ -138,14 +138,14 @@ export default function CheckoutPage() {
   return (
     <main className="checkout-page">
       <div className="checkout-heading">
-        <p className="eyebrow">Order request</p>
+        <p className="eyebrow">Quote request</p>
         <h1>Review your selection.</h1>
-        <p>Submit your items and delivery details. Qutlas will confirm availability and pricing before you commit to a purchase.</p>
+        <p>Send your selection and delivery details for review. Availability, specifications, price and timing are confirmed before you commit.</p>
       </div>
 
       <div className="checkout-grid">
         <section className="cart-panel" aria-labelledby="cart-title">
-          <h2 id="cart-title">Your selection</h2>
+          <h2 id="cart-title">Materials requested</h2>
           {lines.map(({ product, quantity }) => {
             const hasVerifiedPrice = product.status === 'verified' && typeof product.price === 'number';
             return (
@@ -187,9 +187,9 @@ export default function CheckoutPage() {
           <label>Delivery preference<select name="delivery" defaultValue="delivery"><option value="delivery">Deliver to this address</option><option value="pickup">I will arrange collection</option></select></label>
           {error && <p className="form-error" role="alert">{error}</p>}
           <button className="primary-button" type="submit" disabled={busy}>
-            {busy ? 'Submitting request…' : 'Submit order request'} <span aria-hidden="true">↗</span>
+            {busy ? 'Submitting request…' : 'Request a quote'} <span aria-hidden="true">↗</span>
           </button>
-          <small className="checkout-note">This is an order request, not a paid order. Payment integration will be added after quotation and fulfilment steps are defined.</small>
+          <small className="checkout-note">No payment is collected here. This request is for review and quotation; payment and fulfilment steps follow only after the details are agreed.</small>
         </form>
       </div>
     </main>
