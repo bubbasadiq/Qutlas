@@ -1,6 +1,7 @@
 
 'use client';
 
+import Link from 'next/link';
 import { ChangeEvent, DragEvent, FormEvent, useState, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
@@ -415,7 +416,7 @@ export default function ProjectConfigurator({
     <main className="project-page">
       <section className="project-shell" id="project-form" aria-labelledby="project-heading">
         <div className="project-heading">
-          <a className="project-back" href="/">← Back to Qutlas</a>
+          <Link className="project-back" href="/">← Back to Qutlas</Link>
           <p className="eyebrow">Project request</p>
           <h1 id="project-heading">Start with what you have.</h1>
           <p>
@@ -917,7 +918,7 @@ export default function ProjectConfigurator({
                 ← Back
               </button>
             ) : (
-              <a className="secondary-button" href="/">Cancel</a>
+              <Link className="secondary-button" href="/">Cancel</Link>
             )}
 
             {step < 4 && (

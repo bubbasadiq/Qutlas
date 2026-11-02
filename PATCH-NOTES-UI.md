@@ -1,16 +1,13 @@
-# Qutlas UI Phase 1 overlay
+# Qutlas UI correction patch
 
-Apply this bundle over the existing repository. It changes the shared interface and key customer-facing journeys only.
+This corrective batch responds to the review of the previous UI patch.
 
-Included:
-- Homepage repositioned around materials, components and making, with broader use cases.
-- Qutters Lab page with separate host and participant interest pathways. These forms explicitly state that submission is not connected yet and do not pretend to save data.
-- Header/footer navigation for Shop and Qutters Lab.
-- Active catalogue restricted to steel, wood and granite. Tile and standalone hardware catalogue entries removed.
-- Catalogue and shop copy updated; no sample prices added.
-- Responsive visual system adjustments and new Qutters Lab styling.
-- About page no longer frames Qutlas as Nigeria-only.
+- Restores the established Qutlas palette from qutlas_v4.html: navy #2B2F8C, deep navy #1F2268, amber #FFAA00 and cream #F0EDE6.
+- Removes small uppercase eyebrow labels above headings globally.
+- Simplifies buttons to normal sentence case, body typography and consistent sizing.
+- Removes decorative arrows from CTA buttons and links.
+- Replaces text-glyph dropdown arrows with centered CSS chevrons that align consistently.
+- Simplifies the footer by removing tagline, tiny metadata and photo-credit copy.
+- Keeps existing page routes and enquiry/cart behaviours unchanged.
 
-Backend is intentionally unchanged. No commit, push, deployment or production data operation was performed.
-
-After applying, run the existing TypeScript check and production build. ESLint is intentionally not part of this UI batch.
+Apply over the existing repository. This patch does not change backend files.

@@ -39,17 +39,17 @@ export default function SiteHeader() {
       <Link className="brand" href="/" aria-label="Qutlas home" onClick={close}><img src="/icon_logo.png" alt="Qutlas" /></Link>
       <nav className="desktop-nav" aria-label="Main navigation">
         <div className="nav-group">
-          <button type="button" className="nav-trigger" aria-expanded={openMenu === 'materials'} aria-controls="materials-menu" onClick={() => toggle('materials')}>Materials <span aria-hidden="true">⌄</span></button>
+          <button type="button" className="nav-trigger" aria-expanded={openMenu === 'materials'} aria-controls="materials-menu" onClick={() => toggle('materials')}>Materials <span className="dropdown-chevron" aria-hidden="true" /></button>
           {openMenu === 'materials' && <div className="nav-popover" id="materials-menu">{materials.map((material) => <Link href={`/materials/${material.id}`} key={material.id} onClick={close}>{material.name}<small>{material.detail}</small></Link>)}<Link className="popover-all" href="/materials" onClick={close}>Browse all materials</Link></div>}
         </div>
         <Link href="/shop" onClick={close}>Shop</Link>
         <Link href="/qutters-lab" onClick={close}>Qutters Lab</Link>
         <div className="nav-group">
-          <button type="button" className="nav-trigger" aria-expanded={openMenu === 'services'} aria-controls="services-menu" onClick={() => toggle('services')}>Services <span aria-hidden="true">⌄</span></button>
+          <button type="button" className="nav-trigger" aria-expanded={openMenu === 'services'} aria-controls="services-menu" onClick={() => toggle('services')}>Services <span className="dropdown-chevron" aria-hidden="true" /></button>
           {openMenu === 'services' && <div className="nav-popover" id="services-menu">{services.map((service) => <Link href={`/services/${service.id}`} key={service.id} onClick={close}>{service.name}<small>{service.description}</small></Link>)}<Link className="popover-all" href="/services" onClick={close}>All services</Link></div>}
         </div>
         <div className="nav-group">
-          <button type="button" className="nav-trigger" aria-expanded={openMenu === 'resources'} aria-controls="resources-menu" onClick={() => toggle('resources')}>Resources <span aria-hidden="true">⌄</span></button>
+          <button type="button" className="nav-trigger" aria-expanded={openMenu === 'resources'} aria-controls="resources-menu" onClick={() => toggle('resources')}>Resources <span className="dropdown-chevron" aria-hidden="true" /></button>
           {openMenu === 'resources' && <div className="nav-popover" id="resources-menu">{resources.map((resource) => <Link href={resource.href} key={resource.href} onClick={close}>{resource.title}<small>{resource.description}</small></Link>)}</div>}
         </div>
         <Link href="/business" onClick={close}>For business</Link>

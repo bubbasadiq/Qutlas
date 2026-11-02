@@ -1,0 +1,59 @@
+﻿You are editing the Qutlas website in this repository.
+
+OBJECTIVE
+Correct the brand colours throughout the entire website and remove monospace typography globally. Preserve the current layout, page structure, content, spacing, button labels, button shapes, icons, and navigation behaviour unless a change is strictly necessary to meet these objectives.
+
+BRAND COLOURS
+Use these exact original Qutlas design tokens:
+- Primary navy: #2B2F8C
+- Deep navy: #1F2268
+- Lighter navy: #363BA8
+- Primary amber: #FFAA00
+- Deep amber: #DD9200
+- Light amber: #FFC040
+- Cream background: #F0EDE6
+- White: #FFFFFF
+- Main text: #080C22
+
+IMPORTANT: Do not invent a new palette. Do not substitute similar colours, introduce gradients, or change the brand to another shade of blue, purple, yellow, or beige.
+
+TASK 1: FIX COLOURS SITE-WIDE
+1. Inspect the existing global stylesheet, storefront.css, layout files, CSS modules, inline styles, and component-specific styles.
+2. Identify every place where the wrong colours have been introduced or where hard-coded colours override the original palette.
+3. Correct the shared design tokens and their usages throughout the entire website, including the header, dropdowns, page backgrounds, headings, body text, links, buttons, borders, cards, forms, focus states, footer, catalogue, checkout, project configurator, and Qutters Lab pages.
+4. Use navy for primary brand surfaces and controls, amber for intentional accents and highlights, cream for the intended warm background, white for clean surfaces, and #080C22 for primary text where appropriate.
+5. Preserve existing component-specific colour intent when it is already consistent with the palette. Do not make every element the same colour.
+6. Check hover, active, focus, disabled, and responsive states. No outdated colour override should undo the correction.
+7. Do not modify product prices, business logic, links, page content, or backend configuration.
+
+TASK 2: REMOVE MONOSPACE FONTS EVERYWHERE
+1. Search the entire application for font-family declarations and font utility classes that select monospace fonts. Include global CSS, component CSS, inline styles, Tailwind classes, and any typography configuration.
+2. Remove monospace typography from every visible website element, including headings, body copy, navigation, dropdowns, buttons, labels, badges, product specifications, prices, forms, footer text, and metadata.
+3. Use the existing website's normal sans-serif brand typography consistently. Prefer the existing Rubik font if it is already loaded and configured. Otherwise use the existing primary sans-serif font. Do not introduce a new font dependency.
+4. Remove font-mono and equivalent utility classes where they cause monospace rendering.
+5. Replace uppercase, letter-spaced monospace styling with normal sentence-case typography where it is purely presentational. Do not rewrite the wording or meaning of labels.
+6. Ensure no component reintroduces monospace typography through a more specific selector.
+7. Do not change code blocks or technical content that must remain semantically formatted, but there should be no monospace font used for ordinary website UI.
+
+IMPLEMENTATION RULES
+- Make the smallest coherent changes that fix these two problems across the whole site.
+- Do not redesign the site.
+- Do not add eyebrow text, decorative arrows, unnecessary footer copy, new badges, gradients, animations, or visual effects.
+- Do not change button text, sizing, alignment, or shape unless required to remove monospace styling.
+- Do not change dropdown functionality or introduce new icons.
+- Do not touch the database, environment variables, API routes, authentication, or backend.
+- Do not install or update packages.
+- Do not create a new CSS framework or replace the existing styling architecture.
+- Do not overwrite whole files when targeted edits are sufficient.
+- Preserve unrelated existing work.
+- Do not commit, push, or deploy.
+
+VALIDATION
+After making the changes:
+1. Search again for monospace font declarations and font-mono classes across the application. Report any remaining matches and explain whether they affect ordinary UI.
+2. Search for hard-coded colour values outside the approved palette. Review each match and correct inappropriate overrides; do not blindly replace meaningful semantic colours such as validation errors.
+3. Run the existing TypeScript check and production build using the repository's existing package manager scripts. Do not change lint configuration or spend time repairing unrelated lint tooling.
+4. If a check fails, report the actual error. Do not claim the site passes.
+5. Summarize the exact files changed and the checks actually completed.
+
+Start by inspecting the relevant existing files, then make the changes. Do not stop after producing a plan. Complete the implementation.

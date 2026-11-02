@@ -34,6 +34,31 @@ export type CatalogueProduct = {
   price?: number;
 };
 
+export type StorefrontVariant = {
+  id: string;
+  sku: string;
+  name: string;
+  attributes: Record<string, unknown>;
+  unit: string;
+  minimumQuantity: string;
+  maximumQuantity: string | null;
+  quantityStep: string;
+  price: { currency: string; totalMinor: string; taxMinor: string };
+};
+
+export type StorefrontProduct = {
+  id: string;
+  categoryId: string;
+  categorySlug: string;
+  categoryName: string;
+  slug: string;
+  sku: string;
+  name: string;
+  description: string;
+  attributes: Record<string, unknown>;
+  variants: StorefrontVariant[];
+};
+
 export const catalogueCategories = [
   { id: 'steel', name: 'Steel' },
   { id: 'wood', name: 'Wood' },

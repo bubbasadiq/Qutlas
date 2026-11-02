@@ -1,0 +1,137 @@
+.adminPage {
+  min-height: 75vh;
+  padding: 2rem clamp(1rem, 4vw, 3.5rem) 4rem;
+  background: #f0ede6;
+  color: #080c22;
+}
+
+.topbar,
+.sectionHeading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  border-bottom: 1px solid rgba(31, 34, 104, .2);
+  padding-bottom: 1rem;
+}
+
+.topbar h1,
+.sectionHeading h2,
+.signIn h1 {
+  margin: 0;
+  color: #1f2268;
+}
+
+.topbar h1 { font-size: 1.8rem; }
+.sectionHeading h2 { font-size: 1.45rem; }
+.sectionHeading :global(.eyebrow),
+.topbar :global(.eyebrow),
+.signIn :global(.eyebrow) { display: block !important; color: #2b2f8c; margin: 0 0 .25rem; }
+
+.signOut,
+.refresh,
+.recordHeading button,
+.editorActions button:not(.primary-button),
+.approve {
+  min-height: 40px;
+  padding: .55rem .8rem;
+  border: 1px solid rgba(31, 34, 104, .3);
+  border-radius: 8px;
+  background: transparent;
+  color: #1f2268;
+  cursor: pointer;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 2rem;
+  padding-top: 1.5rem;
+}
+
+.sidebar { display: grid; align-content: start; gap: .25rem; }
+.sidebar button {
+  min-height: 42px;
+  padding: .6rem .75rem;
+  border: 0;
+  background: transparent;
+  color: #1f2268;
+  text-align: left;
+  cursor: pointer;
+}
+.sidebar button:hover,
+.sidebar .activeNav { background: #fff; box-shadow: inset 3px 0 #ffAA00; }
+.content { min-width: 0; }
+.sectionActions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.error, .notice { margin: 1rem 0; padding: .75rem 1rem; border-left: 3px solid #a72525; background: #fff; }
+.notice { border-left-color: #2b2f8c; }
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 2.5rem;
+}
+.metrics article { min-width: 0; padding: 1rem 0; border-top: 3px solid #2b2f8c; border-bottom: 1px solid rgba(31, 34, 104, .2); }
+.metrics span { display: block; color: #555869; font-size: .8rem; }
+.metrics strong { display: block; margin-top: .5rem; color: #1f2268; font-size: 1.5rem; overflow-wrap: anywhere; }
+.statusSection { margin-top: 2rem; }
+.statusSection h3 { color: #1f2268; }
+.statusSection dl { max-width: 720px; margin: 0; }
+.statusSection dl div { display: flex; justify-content: space-between; gap: 1rem; padding: .65rem 0; border-bottom: 1px solid rgba(31, 34, 104, .16); text-transform: capitalize; }
+.statusSection dd { margin: 0; font-weight: 600; }
+
+.recordsLayout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .7fr); gap: 2rem; align-items: start; padding-top: 1.5rem; }
+.records { min-width: 0; }
+.record { padding: 1rem 0; border-bottom: 1px solid rgba(31, 34, 104, .2); }
+.recordHeading { display: flex; justify-content: space-between; align-items: start; gap: 1rem; }
+.recordHeading h3 { margin: 0; color: #1f2268; font-size: 1rem; }
+.recordHeading small { display: block; margin-top: .25rem; color: #626371; }
+.record dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem 1rem; margin: .85rem 0 0; }
+.record dl div { min-width: 0; }
+.record dt { color: #626371; font-size: .68rem; text-transform: capitalize; }
+.record dd { margin: .1rem 0 0; overflow-wrap: anywhere; font-size: .78rem; }
+.approve { margin-top: .8rem; border-color: #2b2f8c; background: #2b2f8c; color: #fff; }
+.orderStatusControl { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-top: .8rem; }
+.orderStatusControl select { min-height: 40px; padding: .5rem; border: 1px solid rgba(31, 34, 104, .28); background: #fff; color: #080c22; }
+.inventoryControl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; margin-top: .8rem; }
+.inventoryControl input,
+.inventoryControl select { min-width: 0; min-height: 40px; padding: .5rem; border: 1px solid rgba(31, 34, 104, .28); background: #fff; color: #080c22; }
+.inventoryControl button { grid-column: 1 / -1; justify-self: start; }
+.pricePreview { grid-column: 1 / -1; max-width: 100%; padding: .8rem; overflow: auto; background: #f0ede6; color: #080c22; font-size: .72rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.editor,
+.signIn {
+  display: grid;
+  gap: .85rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(31, 34, 104, .18);
+  border-radius: 8px;
+  background: #fff;
+}
+.editor { position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow: auto; }
+.editor h3 { margin: 0; color: #1f2268; }
+.editor label,
+.signIn label { display: grid; gap: .35rem; color: #1f2268; font-size: .76rem; font-weight: 500; }
+.editor input,
+.editor select,
+.editor textarea,
+.signIn input { width: 100%; min-height: 40px; padding: .55rem .65rem; border: 1px solid rgba(31, 34, 104, .28); background: #fff; color: #080c22; }
+.editor textarea { resize: vertical; font: .82rem/1.5 var(--body); }
+.editorActions { display: flex; flex-wrap: wrap; gap: .6rem; }
+.signIn { width: min(440px, 100%); margin: clamp(2rem, 8vh, 5rem) auto; }
+.signIn form { display: grid; gap: .9rem; }
+
+@media (max-width: 900px) {
+  .workspace { grid-template-columns: 1fr; gap: 1rem; }
+  .sidebar { display: flex; overflow-x: auto; padding-bottom: .35rem; }
+  .sidebar button { flex: 0 0 auto; }
+  .recordsLayout { grid-template-columns: 1fr; }
+  .editor { position: static; max-height: none; }
+}
+
+@media (max-width: 560px) {
+  .adminPage { padding-inline: 1rem; }
+  .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+  .record dl { grid-template-columns: 1fr; }
+}

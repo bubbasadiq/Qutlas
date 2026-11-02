@@ -1,105 +1,132 @@
 'use client';
 
 import Link from 'next/link';
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useShopCart } from '../ShopCart';
+import { formatMinorCurrency } from '../ShopCart';
+import { getSupabaseBrowserClient } from '../lib/supabase-browser';
 
-type SubmissionPayload = {
-  details: Record<string, unknown>;
-  files: never[];
-};
-
-function formatPrice(value: number) {
-  return `₦${value.toLocaleString('en-NG')}`;
-}
+type FulfilmentQuote = { chargeMinor: string; currency: string };
+type SubmittedOrder = { id: string; reference: string; totalMinor: string; currency: string };
 
 export default function CheckoutPage() {
-  const { lines, total, update, remove, clear } = useShopCart();
-  const [submitted, setSubmitted] = useState<string | null>(null);
+  const { lines, subtotalMinor, taxMinor, totalMinor, currency, error: cartError, update, remove, clear } = useShopCart();
+  const [submitted, setSubmitted] = useState<SubmittedOrder | null>(null);
+  const [session, setSession] = useState<{ accessToken: string; email: string } | null>(null);
+  const [method, setMethod] = useState<'delivery' | 'collection'>('delivery');
+  const [regionCode, setRegionCode] = useState('');
+  const [fulfilment, setFulfilment] = useState<FulfilmentQuote | null>(null);
+  const [fulfilmentError, setFulfilmentError] = useState('Enter a region to check configured fulfilment options.');
   const [error, setError] = useState('');
+  const [paymentError, setPaymentError] = useState('');
+  const [paymentBusy, setPaymentBusy] = useState(false);
   const [busy, setBusy] = useState(false);
   const submissionRef = useRef<{ fingerprint: string; key: string } | null>(null);
 
+  useEffect(() => {
+    const client = getSupabaseBrowserClient();
+    if (!client) return;
+    client.auth.getSession().then(({ data }) => {
+      const current = data.session;
+      setSession(current?.user.email ? { accessToken: current.access_token, email: current.user.email } : null);
+    });
+    const { data: { subscription } } = client.auth.onAuthStateChange((_event, current) => {
+      setSession(current?.user.email ? { accessToken: current.access_token, email: current.user.email } : null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!regionCode.trim()) {
+      setFulfilment(null);
+      setFulfilmentError('Enter a region to check configured fulfilment options.');
+      return;
+    }
+    const controller = new AbortController();
+    setFulfilment(null);
+    setFulfilmentError('Checking configured fulfilment…');
+    void fetch(`/api/fulfilment?method=${method}&regionCode=${encodeURIComponent(regionCode.trim())}`, { cache: 'no-store', signal: controller.signal })
+      .then(async (response) => {
+        const result: unknown = await response.json().catch(() => null);
+        if (!response.ok || typeof result !== 'object' || result === null || !('chargeMinor' in result) || typeof result.chargeMinor !== 'string' || !('currency' in result) || typeof result.currency !== 'string') {
+          throw new Error(typeof result === 'object' && result !== null && 'error' in result && typeof result.error === 'string' ? result.error : 'Fulfilment is unavailable.');
+        }
+        setFulfilment({ chargeMinor: result.chargeMinor, currency: result.currency });
+        setFulfilmentError('');
+      })
+      .catch((quoteError: unknown) => {
+        if (controller.signal.aborted) return;
+        setFulfilmentError(quoteError instanceof Error ? quoteError.message : 'Fulfilment is unavailable.');
+      });
+    return () => controller.abort();
+  }, [method, regionCode]);
+
+  const checkoutTotal = subtotalMinor !== null && taxMinor !== null && totalMinor !== null && fulfilment && currency === fulfilment.currency
+    ? (BigInt(subtotalMinor) + BigInt(taxMinor) + BigInt(fulfilment.chargeMinor)).toString()
+    : null;
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (busy || lines.length === 0) return;
+    if (busy || lines.length === 0 || !session || !checkoutTotal || !currency || !fulfilment) return;
 
     setBusy(true);
     setError('');
 
     try {
       const form = new FormData(event.currentTarget);
-      const supportedMaterials = new Set(['steel', 'wood', 'granite']);
-      const distinctMaterials = new Set(lines.map(({ product }) => product.material));
-      const firstMaterial = lines[0]?.product.material;
-      const material = distinctMaterials.size === 1 && firstMaterial && supportedMaterials.has(firstMaterial)
-        ? firstMaterial
-        : 'unsure';
-
-      const payload: SubmissionPayload = {
-        details: {
-          material,
-          startMode: 'description',
-          need: 'material',
-          itemName: 'Qutlas shop order',
-          description: lines.map(({ product, quantity }) =>
-            `${quantity} × ${product.name} (${product.code}); unit price and availability to be confirmed`,
-          ).join('\n'),
-          specs: {
-            order_type: 'catalogue_order_request',
-            item_count: lines.reduce((sum, line) => sum + line.quantity, 0),
-            pricing: 'to_be_confirmed',
-            payment: 'not_collected',
-          },
-          quantity: lines.reduce((sum, line) => sum + line.quantity, 0),
-          quantityUnit: 'items',
+      const payload = {
+        customer: {
           name: String(form.get('name') ?? ''),
-          email: String(form.get('email') ?? ''),
           phone: String(form.get('phone') ?? ''),
-          location: String(form.get('location') ?? ''),
-          delivery: String(form.get('delivery') ?? 'delivery'),
-          contactMethod: 'email',
         },
-        files: [],
+        fulfilment: {
+          method,
+          regionCode: regionCode.trim(),
+          address: {
+            addressLine: String(form.get('addressLine') ?? ''),
+            city: String(form.get('city') ?? ''),
+          },
+        },
+        items: lines.map(({ variant, quantity }) => ({ variantId: variant.id, quantity })),
       };
-
-      // Reuse the key only when retrying the exact same payload.
-      // If the customer edits their details or cart, the request gets a new key.
       const fingerprint = JSON.stringify(payload);
       if (!submissionRef.current || submissionRef.current.fingerprint !== fingerprint) {
-        submissionRef.current = {
-          fingerprint,
-          key: globalThis.crypto.randomUUID(),
-        };
+        submissionRef.current = { fingerprint, key: globalThis.crypto.randomUUID() };
       }
 
-      const response = await fetch('/api/enquiries', {
+      const response = await fetch('/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Idempotency-Key': submissionRef.current.key,
+          Authorization: `Bearer ${session.accessToken}`,
         },
         body: JSON.stringify(payload),
       });
-
       const result: unknown = await response.json().catch(() => null);
       const resultRecord = typeof result === 'object' && result !== null
         ? result as Record<string, unknown>
         : {};
 
       if (!response.ok) {
-        setError(typeof resultRecord.error === 'string'
-          ? resultRecord.error
-          : 'We could not submit your order request. Your cart is still saved. Please try again.');
+        setError(typeof resultRecord.error === 'string' ? resultRecord.error : 'We could not create your order. Your cart is still saved.');
         return;
       }
-
       if (typeof resultRecord.reference !== 'string' || !resultRecord.reference) {
-        setError('The server did not return an order reference. Your cart is still saved. Please retry.');
+        setError('The server did not return an order reference. Your cart is still saved.');
+        return;
+      }
+      if (typeof resultRecord.id !== 'string' || !resultRecord.id) {
+        setError('The server did not return an order ID. Your cart is still saved.');
         return;
       }
 
-      setSubmitted(resultRecord.reference);
+      setSubmitted({
+        id: resultRecord.id,
+        reference: resultRecord.reference,
+        totalMinor: typeof resultRecord.totalMinor === 'string' ? resultRecord.totalMinor : checkoutTotal,
+        currency: typeof resultRecord.currency === 'string' ? resultRecord.currency : currency,
+      });
       submissionRef.current = null;
       clear();
     } catch {
@@ -109,14 +136,39 @@ export default function CheckoutPage() {
     }
   }
 
+  async function beginPayment() {
+    if (!submitted || !session || paymentBusy) return;
+    setPaymentBusy(true);
+    setPaymentError('');
+    try {
+      const response = await fetch(`/api/orders/${encodeURIComponent(submitted.id)}/payment`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.accessToken}` },
+      });
+      const result: unknown = await response.json().catch(() => null);
+      if (!response.ok || typeof result !== 'object' || result === null || !('authorizationUrl' in result) || typeof result.authorizationUrl !== 'string') {
+        throw new Error(typeof result === 'object' && result !== null && 'error' in result && typeof result.error === 'string'
+          ? result.error
+          : 'Secure payment could not be started.');
+      }
+      window.location.assign(result.authorizationUrl);
+    } catch (paymentStartError) {
+      setPaymentError(paymentStartError instanceof Error ? paymentStartError.message : 'Secure payment could not be started.');
+    } finally {
+      setPaymentBusy(false);
+    }
+  }
+
   if (submitted) {
     return (
       <main className="checkout-page">
         <div className="checkout-success">
-          <p className="eyebrow">Quote request received</p>
-          <h1>We have received your request.</h1>
-          <p>Your reference is <strong>{submitted}</strong>. No payment has been taken. Availability, specification, pricing and delivery still require review and confirmation. Keep this reference for follow-up.</p>
-          <Link className="primary-button" href="/shop">Back to materials <span aria-hidden="true">↗</span></Link>
+          <p className="eyebrow">Order created · payment pending</p>
+          <h1>Your order is awaiting payment.</h1>
+          <p>Reference <strong>{submitted.reference}</strong>. Order total: <strong>{formatMinorCurrency(submitted.totalMinor, submitted.currency)}</strong>. No payment is marked successful until a payment provider confirms it.</p>
+          {paymentError && <p className="form-error" role="alert">{paymentError}</p>}
+          <button className="primary-button" type="button" disabled={paymentBusy} onClick={() => void beginPayment()}>{paymentBusy ? 'Opening secure payment…' : 'Continue to secure payment'}</button>
+          <Link className="primary-button" href="/account">View your account</Link>
         </div>
       </main>
     );
@@ -128,8 +180,8 @@ export default function CheckoutPage() {
         <div className="empty-cart">
           <p className="eyebrow">Your cart</p>
           <h1>Nothing here yet.</h1>
-          <p>Browse steel, wood and granite, then add the materials you want us to review.</p>
-          <Link className="primary-button" href="/shop">Browse the catalogue <span aria-hidden="true">↗</span></Link>
+          <p>Browse currently priced products to start an order.</p>
+          <Link className="primary-button" href="/shop">Browse products</Link>
         </div>
       </main>
     );
@@ -138,58 +190,64 @@ export default function CheckoutPage() {
   return (
     <main className="checkout-page">
       <div className="checkout-heading">
-        <p className="eyebrow">Quote request</p>
-        <h1>Review your selection.</h1>
-        <p>Send your selection and delivery details for review. Availability, specifications, price and timing are confirmed before you commit.</p>
+        <p className="eyebrow">Checkout</p>
+        <h1>Review your order.</h1>
+        <p>Prices and stock are revalidated on the server before the order is created.</p>
       </div>
+
+      {!session && <p className="checkout-note">Sign in with a confirmed customer account to place an order. <Link href="/account">Sign in or create an account</Link>.</p>}
 
       <div className="checkout-grid">
         <section className="cart-panel" aria-labelledby="cart-title">
-          <h2 id="cart-title">Materials requested</h2>
-          {lines.map(({ product, quantity }) => {
-            const hasVerifiedPrice = product.status === 'verified' && typeof product.price === 'number';
-            return (
+          <h2 id="cart-title">Items</h2>
+          {lines.map(({ product, variant, quantity, totalMinor: lineTotalMinor }) => (
               <div className="cart-line" key={product.id}>
                 <div>
                   <strong>{product.name}</strong>
-                  <small>{product.code} · {hasVerifiedPrice ? `${formatPrice(product.price!)} per unit` : 'Price on request'}</small>
+                  <small>{variant.sku} · {variant.name} · {formatMinorCurrency(lineTotalMinor, variant.price.currency)}</small>
                 </div>
                 <div className="quantity-control">
-                  <button type="button" aria-label={`Decrease ${product.name}`} onClick={() => update(product.id, quantity - 1)}>−</button>
                   <input
-                    aria-label={`Quantity for ${product.name}`}
+                    aria-label={`Quantity for ${product.name} ${variant.name}`}
                     type="number"
-                    min="1"
-                    max="999"
+                    min={variant.minimumQuantity}
+                    max={variant.maximumQuantity ?? undefined}
+                    step={variant.quantityStep}
                     value={quantity}
-                    onChange={(event) => update(product.id, Math.max(1, Number(event.target.value) || 1))}
+                    onChange={(event) => { void update(variant.id, event.target.value); }}
                   />
-                  <button type="button" aria-label={`Increase ${product.name}`} onClick={() => update(product.id, quantity + 1)}>+</button>
                 </div>
-                <strong>{hasVerifiedPrice ? formatPrice(product.price! * quantity) : 'Quote required'}</strong>
-                <button className="remove-line" type="button" onClick={() => remove(product.id)}>Remove</button>
+                <strong>{formatMinorCurrency(lineTotalMinor, variant.price.currency)}</strong>
+                <button className="remove-line" type="button" onClick={() => remove(variant.id)}>Remove</button>
               </div>
-            );
-          })}
+            ))}
+          {cartError && <p className="form-error" role="alert">{cartError}</p>}
           <div className="cart-total">
-            <span>{total === null ? 'Total' : 'Verified subtotal'}</span>
-            <strong>{total === null ? 'Confirmed after review' : formatPrice(total)}</strong>
+            <span>Items subtotal</span>
+            <strong>{subtotalMinor && currency ? formatMinorCurrency(subtotalMinor, currency) : 'Unavailable'}</strong>
           </div>
-          <p className="checkout-note">No payment is collected at this stage. Prices, stock, specifications and delivery are confirmed before a quotation is accepted.</p>
+          <div className="cart-total"><span>Tax</span><strong>{taxMinor && currency ? formatMinorCurrency(taxMinor, currency) : 'Unavailable'}</strong></div>
+          <div className="cart-total"><span>Fulfilment</span><strong>{fulfilment && currency === fulfilment.currency ? formatMinorCurrency(fulfilment.chargeMinor, fulfilment.currency) : 'Unavailable'}</strong></div>
+          <div className="cart-total"><span>Order total</span><strong>{checkoutTotal && currency ? formatMinorCurrency(checkoutTotal, currency) : 'Unavailable'}</strong></div>
+          {fulfilmentError && <p className="checkout-note" role="status">{fulfilmentError}</p>}
         </section>
 
         <form className="checkout-form" onSubmit={submit}>
-          <h2>Contact and delivery details</h2>
+          <h2>Contact and fulfilment</h2>
+          {session && <p>Signed in as {session.email}</p>}
           <label>Full name<input name="name" required autoComplete="name" maxLength={200} /></label>
-          <label>Email<input name="email" type="email" required autoComplete="email" maxLength={320} /></label>
           <label>Phone number<input name="phone" required autoComplete="tel" maxLength={50} /></label>
-          <label>Delivery location<input name="location" required placeholder="City, area and address" autoComplete="street-address" maxLength={300} /></label>
-          <label>Delivery preference<select name="delivery" defaultValue="delivery"><option value="delivery">Deliver to this address</option><option value="pickup">I will arrange collection</option></select></label>
+          <label>Fulfilment method<select value={method} onChange={(event) => setMethod(event.target.value as 'delivery' | 'collection')}><option value="delivery">Delivery</option><option value="collection">Collection</option></select></label>
+          <label>Region code or name<input required value={regionCode} onChange={(event) => setRegionCode(event.target.value)} placeholder="As configured by Qutlas" maxLength={20} /></label>
+          {method === 'delivery' ? <>
+            <label>Delivery address<input name="addressLine" required maxLength={300} autoComplete="street-address" /></label>
+            <label>City<input name="city" required maxLength={120} autoComplete="address-level2" /></label>
+          </> : <label>Collection notes<input name="addressLine" maxLength={300} placeholder="Optional collection details" /></label>}
           {error && <p className="form-error" role="alert">{error}</p>}
-          <button className="primary-button" type="submit" disabled={busy}>
-            {busy ? 'Submitting request…' : 'Request a quote'} <span aria-hidden="true">↗</span>
+          <button className="primary-button" type="submit" disabled={busy || !session || !checkoutTotal || !fulfilment}>
+            {busy ? 'Creating order…' : 'Place order'}
           </button>
-          <small className="checkout-note">No payment is collected here. This request is for review and quotation; payment and fulfilment steps follow only after the details are agreed.</small>
+          <small className="checkout-note">Orders are created as unpaid. Payment status changes only after a verified provider confirmation.</small>
         </form>
       </div>
     </main>

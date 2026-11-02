@@ -10,6 +10,6 @@ export default function DrawingsAndFilesPage() {
     { title: 'Include what you have', body: 'Add a drawing, photo, specification sheet, sketch, or bill of quantities that helps show the intended item or scope.' },
     { title: 'Keep dimensions and units clear', body: 'Use metric units where possible. Mark dimensions that are critical and identify details that still need confirmation.' },
     { title: 'You can start without CAD', body: 'Describe how the item will be used, which material you have in mind, and what you need supplied or made.' },
-    { title: 'Current file handling', body: 'The current project flow keeps selected files in the browser and lists their names in the request summary. It does not upload files to Qutlas; attach them manually to the email draft before sending.' },
+    { title: 'Current file handling', body: 'Supported files attached to the project form are uploaded to private project storage and checked after upload. The current workflow does not provide malware scanning or a staff file-review queue, so avoid sending sensitive files until Qutlas has confirmed its file-handling policy.' },
   ]} />;
 }
