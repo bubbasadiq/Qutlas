@@ -24,10 +24,6 @@
 
 .topbar h1 { font-size: 1.8rem; }
 .sectionHeading h2 { font-size: 1.45rem; }
-.sectionHeading :global(.eyebrow),
-.topbar :global(.eyebrow),
-.signIn :global(.eyebrow) { display: block !important; color: #2b2f8c; margin: 0 0 .25rem; }
-
 .signOut,
 .refresh,
 .recordHeading button,
@@ -116,7 +112,7 @@
 .editor input,
 .editor select,
 .editor textarea,
-.signIn input { width: 100%; min-height: 40px; padding: .55rem .65rem; border: 1px solid rgba(31, 34, 104, .28); background: #fff; color: #080c22; }
+.signIn input { width: 100%; min-height: 40px; padding: .55rem .65rem; border: 1px solid rgba(31, 34, 104, .28); border-radius: 8px; background: #fff; color: #080c22; }
 .editor textarea { resize: vertical; font: .82rem/1.5 var(--body); }
 .editorActions { display: flex; flex-wrap: wrap; gap: .6rem; }
 .signIn { width: min(440px, 100%); margin: clamp(2rem, 8vh, 5rem) auto; }

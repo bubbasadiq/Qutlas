@@ -11,9 +11,8 @@
 }
 
 .accountHeading { margin-bottom: 2rem; }
-.accountHeading :global(.eyebrow) { display: block !important; color: #2b2f8c; margin: 0 0 .4rem; }
 .accountHeading h1 { margin: 0; color: #1f2268; font: 400 clamp(2rem, 7vw, 3.4rem)/1.08 var(--serif); }
-.accountHeading p:not(.eyebrow) { color: #626371; }
+.accountHeading p { color: #626371; }
 
 .accountForm {
   display: grid;
@@ -21,12 +20,13 @@
   max-width: 440px;
   padding: 1.25rem;
   border: 1px solid rgba(31, 34, 104, .18);
+  border-radius: 8px;
   background: #fff;
 }
 .accountForm label { display: grid; gap: .4rem; color: #1f2268; font-size: .75rem; font-weight: 500; }
-.accountForm input { width: 100%; min-height: 44px; padding: .65rem .75rem; border: 1px solid rgba(31, 34, 104, .25); background: #fff; color: #080c22; }
+.accountForm input { width: 100%; min-height: 44px; padding: .65rem .75rem; border: 1px solid rgba(31, 34, 104, .25); border-radius: 8px; background: #fff; color: #080c22; }
 .modeToggle { margin-top: 1rem; padding: .5rem 0; border: 0; border-bottom: 1px solid #2b2f8c; background: transparent; color: #1f2268; cursor: pointer; }
-.secondaryButton { min-height: 40px; padding: .5rem .75rem; border: 1px solid rgba(31, 34, 104, .28); background: transparent; color: #1f2268; cursor: pointer; }
+.secondaryButton { min-height: 40px; padding: .5rem .75rem; border: 1px solid rgba(31, 34, 104, .28); border-radius: 8px; background: transparent; color: #1f2268; cursor: pointer; }
 .accountEmpty { padding: 1.25rem 0; color: #626371; }
 .accountOrders { display: grid; }
 .accountOrder { padding: 1.25rem 0; border-top: 1px solid rgba(31, 34, 104, .2); }

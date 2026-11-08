@@ -296,26 +296,26 @@ export default function AdminPage() {
   const visibleModules = modules.filter((item) => roles.includes('super_admin') || item.roles.some((role) => roles.includes(role)));
 
   if (!token) return <main className={styles.adminPage}><section className={styles.signIn}>
-    <p className="eyebrow">Qutlas operations</p><h1>Staff sign in</h1><p>Access is limited to accounts with an assigned staff role.</p>
+    <h1>Staff sign in</h1>
     <form onSubmit={signIn}><label>Email<input type="email" autoComplete="username" required value={email} onChange={(event) => setEmail(event.target.value)} /></label><label>Password<input type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} /></label>{error && <p className={styles.error} role="alert">{error}</p>}<button className="primary-button" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button></form>
   </section></main>;
 
   return <main className={styles.adminPage}>
-    <header className={styles.topbar}><div><p className="eyebrow">Qutlas operations</p><h1>Admin</h1></div><button type="button" className={styles.signOut} onClick={signOut}>Sign out</button></header>
+    <header className={styles.topbar}><div><h1>Admin</h1></div><button type="button" className={styles.signOut} onClick={signOut}>Sign out</button></header>
     <div className={styles.workspace}>
       <nav className={styles.sidebar} aria-label="Admin sections"><button className={activeKey === 'overview' ? styles.activeNav : ''} onClick={() => setActiveKey('overview')}>Overview</button>{visibleModules.map((item) => <button key={item.key} className={activeKey === item.key ? styles.activeNav : ''} onClick={() => setActiveKey(item.key)}>{item.label}</button>)}</nav>
       <section className={styles.content}>
         {error && <p className={styles.error} role="alert">{error}</p>}
         {notice && <p className={styles.notice} role="status">{notice}</p>}
         {activeKey === 'overview' ? <>
-          <div className={styles.sectionHeading}><div><p className="eyebrow">Live operations</p><h2>Overview</h2></div><button className={styles.refresh} onClick={() => { setOverview(null); void adminApi(token, '/api/admin/overview').then((result) => setOverview(result as Row)).catch((loadError: unknown) => setError(loadError instanceof Error ? loadError.message : 'Dashboard unavailable.')); }}>Refresh</button></div>
+          <div className={styles.sectionHeading}><h2>Overview</h2><button className={styles.refresh} onClick={() => { setOverview(null); void adminApi(token, '/api/admin/overview').then((result) => setOverview(result as Row)).catch((loadError: unknown) => setError(loadError instanceof Error ? loadError.message : 'Dashboard unavailable.')); }}>Refresh</button></div>
           {!overview ? <p>Loading live metrics…</p> : <>
             <div className={styles.metrics}>{metrics.map(([key, label]) => <article key={key}><span>{label}</span><strong>{String(overview[key] ?? '0')}</strong></article>)}</div>
             <section className={styles.statusSection}><h3>Orders by status</h3><dl>{Object.entries((overview.order_statuses as Row) ?? {}).map(([status, count]) => <div key={status}><dt>{status.replace(/_/g, ' ')}</dt><dd>{String(count)}</dd></div>)}</dl></section>
             <section className={styles.statusSection}><h3>Top sellers</h3>{Array.isArray(overview.top_products) && overview.top_products.length ? <ul>{(overview.top_products as Row[]).map((product, index) => <li key={`${product.sku_snapshot}-${index}`}>{String(product.name_snapshot)} · {String(product.quantity)} · {String(product.revenue_minor)} minor units</li>)}</ul> : <p>No paid order data yet.</p>}</section>
           </>}
         </> : activeModule ? <>
-          <div className={styles.sectionHeading}><div><p className="eyebrow">Management</p><h2>{activeModule.label}</h2></div><div className={styles.sectionActions}>{rows.length > 0 && <button className={styles.refresh} onClick={exportRows}>Export CSV</button>}{activeModule.create !== false && <button className={styles.refresh} onClick={() => beginEdit(null)}>New record</button>}</div></div>
+          <div className={styles.sectionHeading}><h2>{activeModule.label}</h2><div className={styles.sectionActions}>{rows.length > 0 && <button className={styles.refresh} onClick={exportRows}>Export CSV</button>}{activeModule.create !== false && <button className={styles.refresh} onClick={() => beginEdit(null)}>New record</button>}</div></div>
           <div className={styles.recordsLayout}>
             <div className={styles.records}>
               {!rows.length ? <p>No records found.</p> : rows.map((row) => {

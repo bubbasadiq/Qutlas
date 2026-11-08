@@ -126,7 +126,7 @@ export default function AccountPage() {
     <main className={styles.accountPage}>
       <section className={styles.accountShell}>
         {userEmail ? <>
-          <div className={styles.accountHeading}><p className="eyebrow">Customer account</p><h1>Your orders</h1><p>{userEmail}</p><button className={styles.secondaryButton} type="button" onClick={signOut}>Sign out</button></div>
+          <div className={styles.accountHeading}><h1>Your orders</h1><p>{userEmail}</p><button className={styles.secondaryButton} type="button" onClick={signOut}>Sign out</button></div>
           {error && <p className="form-error" role="alert">{error}</p>}
           {!orders.length && !error ? <p className={styles.accountEmpty}>No orders are associated with this account yet.</p> : <div className={styles.accountOrders}>{orders.map((order) => <article className={styles.accountOrder} key={order.id}>
             <header className={styles.orderHeader}><div><strong>{order.reference}</strong><time dateTime={order.created_at}>{new Date(order.created_at).toLocaleDateString('en-NG')}</time></div><span>{order.status.replace(/_/g, ' ')}</span></header>
@@ -134,7 +134,7 @@ export default function AccountPage() {
             <footer className={styles.orderFooter}><span>Payment: {order.payment_status.replace(/_/g, ' ')}</span><strong>{formatMinorCurrency(order.total_minor, order.currency)}</strong></footer>
           </article>)}</div>}
         </> : <>
-          <div className={styles.accountHeading}><p className="eyebrow">Customer account</p><h1>{signUp ? 'Create your account.' : 'Sign in to Qutlas.'}</h1><p>Keep your contact details and view order updates in one place.</p></div>
+          <div className={styles.accountHeading}><h1>{signUp ? 'Create your account.' : 'Sign in to Qutlas.'}</h1></div>
           <form className={styles.accountForm} onSubmit={submit}>
             {signUp && <label>Full name<input required autoComplete="name" maxLength={200} value={fullName} onChange={(event) => setFullName(event.target.value)} /></label>}
             <label>Email<input type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} /></label>

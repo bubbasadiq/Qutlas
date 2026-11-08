@@ -21,7 +21,7 @@ html { scroll-behavior: auto; }
 body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--body); font-weight: 300; line-height: 1.6; }
 img { max-width: 100%; }
 a { color: inherit; }
-button, input, select, textarea { font: inherit; }
+button, input, select, textarea { font: inherit; border-radius: var(--qutlas-radius); }
 button, a { -webkit-tap-highlight-color: transparent; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, label:focus-within { outline: 3px solid var(--amber); outline-offset: 3px; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
@@ -55,7 +55,22 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .hero-band { position: relative; min-height: 600px; padding: clamp(4rem, 8vw, 8rem) 8vw; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, .9fr); align-items: center; gap: clamp(2.5rem, 7vw, 8rem); overflow: hidden; background: var(--paper); color: var(--ink); }
 .hero-copy { max-width: 650px; position: relative; z-index: 1; }
-.eyebrow { display: none !important; }
+.eyebrow,
+.catalogue-kicker,
+.use-case-number,
+.material-number,
+.lab-form-intro > span,
+.lab-pillars article > span { display: none !important; }
+.section-heading > p,
+.listing-heading > p:last-child,
+.content-intro,
+.shop-hero > p:last-child,
+.checkout-heading > p:last-child,
+.lab-hero-copy > p:not(.eyebrow):not(.lab-status-note) { display: none !important; }
+.section-heading > p,
+.listing-heading > p:last-child,
+.content-intro,
+.shop-hero > p:last-child { display: none !important; }
 .hero-band h1 { max-width: 760px; margin: 0; color: var(--navy-dark); font: 400 4.25rem/1 var(--serif); }
 .hero-band h1 em { color: var(--amber); font-weight: 400; }
 .hero-intro { max-width: 570px; margin: 1.7rem 0 0; color: var(--quiet); font-size: 1.03rem; line-height: 1.8; }
@@ -485,9 +500,9 @@ body { font-weight: 400; }
 .section-tail-link { margin-top: 1.5rem; }
 .section-tail-link .text-action { color: var(--navy); }
 .applications-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
-.use-cases-section { background: #fff; }
-.use-cases-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border-top:1px solid var(--line); border-left:1px solid var(--line); }
-.use-case { min-height:210px; padding:1.45rem; border-right:1px solid var(--line); border-bottom:1px solid var(--line); display:flex; flex-direction:column; align-items:flex-start; }
+.use-cases-section { background: var(--paper); }
+.use-cases-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; }
+.use-case { min-height:210px; padding:1.45rem; border:1px solid var(--line); border-radius:var(--qutlas-radius); background:var(--white); display:flex; flex-direction:column; align-items:flex-start; }
 .use-case-number { color:var(--navy); font: .62rem var(--mono); text-transform:uppercase; }
 .use-case h3 { margin:1.15rem 0 .35rem; color:var(--navy-dark); font:400 1.45rem/1.12 var(--serif); }
 .use-case p { margin:0 0 1.2rem; color:var(--quiet); font-size:.84rem; line-height:1.65; }
@@ -551,8 +566,8 @@ body { font-weight: 400; }
 .lab-status-note { max-width:560px; margin-top:1.5rem; color:#7a858b; font-size:.72rem; line-height:1.6; }
 .lab-hero-image { min-height:420px; }
 .lab-hero-image img { display:block; width:100%; height:100%; min-height:420px; object-fit:cover; }
-.lab-pillars { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border-top:1px solid var(--line); border-left:1px solid var(--line); }
-.lab-pillars article { min-height:200px; padding:1.5rem; border-right:1px solid var(--line); border-bottom:1px solid var(--line); }
+.lab-pillars { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; }
+.lab-pillars article { min-height:200px; padding:1.5rem; border:1px solid var(--line); border-radius:var(--qutlas-radius); background:var(--white); }
 .lab-pillars article > span { color:var(--navy); font: .65rem var(--mono); }
 .lab-pillars h3 { margin:1.1rem 0 .4rem; color:var(--navy-dark); font:400 1.55rem var(--serif); }
 .lab-pillars p { margin:0; color:var(--quiet); font-size:.85rem; line-height:1.7; }

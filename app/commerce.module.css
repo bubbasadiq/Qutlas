@@ -13,7 +13,7 @@
   min-height: 42px;
   padding: .5rem .65rem;
   border: 1px solid rgba(255, 255, 255, .32);
-  border-radius: 0;
+  border-radius: 8px;
   background: #1f2268;
   color: #fff;
 }
